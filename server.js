@@ -196,7 +196,7 @@ app.post("/contact", async (req, res) => {
   try {
     // Send confirmation email to the sender
     const info = await transporter.sendMail({
-      from: `"EYIF 2025" <${process.env.EMAIL}>`,
+      from: "Edo Youth Impact Forum 2025",
       to: email,
       subject: "Thank You for Contacting EYIF 2025",
       html: thanksMessage,
@@ -211,7 +211,7 @@ app.post("/contact", async (req, res) => {
 
     // Send notification email to admin
     const report = await transporter.sendMail({
-      from: `"EYIF 2025" <${process.env.EMAIL}>`,
+      from: "Edo Youth Impact Forum 2025",
       to: process.env.CONTACT_EMAIL,
       subject: "New Contact Form Submission - EYIF 2025",
       html: contactEmailTemplate,
@@ -383,7 +383,7 @@ app.post("/subscribe", async (req, res) => {
   try {
     // Send confirmation email to subscriber
     const info = await transporter.sendMail({
-      from: `"EYIF 2025" <${process.env.EMAIL}>`,
+      from: "Edo Youth Impact Forum 2025",
       to: email,
       subject: "Thank You for Subscribing to EYIF 2025 Updates",
       html: subscribeEmailTemplate,
@@ -398,7 +398,7 @@ app.post("/subscribe", async (req, res) => {
 
     // Send notification email to admin
     const report = await transporter.sendMail({
-      from: `"EYIF 2025" <${process.env.EMAIL}>`,
+      from: "Edo Youth Impact Forum 2025",
       to: process.env.NEWSLETTER_EMAIL,
       subject: "New Newsletter Subscription - EYIF 2025",
       html: subscribeEmailReport,
@@ -682,7 +682,7 @@ app.post("/grant-registration", async (req, res) => {
   try {
     // Send confirmation email to applicant
     const info = await transporter.sendMail({
-      from: `"EYIF 2025" <${process.env.EMAIL}>`,
+      from: "Edo Youth Impact Forum 2025",
       to: email,
       subject: "Your EYIF 2025 Grant Application Has Been Received",
       html: applicantConfirmationTemplate,
@@ -697,8 +697,14 @@ app.post("/grant-registration", async (req, res) => {
 
     // Send notification email to admin
     const report = await transporter.sendMail({
-      from: `"EYIF 2025" <${process.env.EMAIL}>`,
+      from: "Edo Youth Impact Forum 2025",
       to: process.env.GRANT_EMAIL,
+      cc: [
+        "iguodalaefosa@gmail.com",
+        "ebuka0064@gmail.com",
+        "onovaeochuko@gmail.com",
+        "jephthahimade@gmail.com",
+      ],
       subject: `New Grant Application: ${startupName} - ${categoryName}`,
       html: grantRegistrationTemplate,
       attachments: [
@@ -712,12 +718,10 @@ app.post("/grant-registration", async (req, res) => {
 
     console.log("Grant application confirmation email sent:", info.messageId);
     console.log("Grant application notification email sent:", report.messageId);
-    res
-      .status(200)
-      .send({
-        message: "Grant application submitted successfully",
-        status: 200,
-      });
+    res.status(200).send({
+      message: "Grant application submitted successfully",
+      status: 200,
+    });
   } catch (error) {
     console.error("Error sending grant application email:", error);
     res.status(500).send({
