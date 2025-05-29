@@ -86,7 +86,7 @@ app.post("/contact", async (req, res) => {
     <body>
       <div class="container">
         <div class="header">
-          <img src="cid:logo" alt="EYIF Logo" style="max-width: 150px;">
+          <img src="https://edoyouthimpactforum.com/images/logo-2.png" alt="EYIF Logo" style="max-width: 150px;">
           <h1>New Contact Form Submission</h1>
         </div>
         <div class="content">
@@ -167,7 +167,7 @@ app.post("/contact", async (req, res) => {
     <body>
       <div class="container">
         <div class="header">
-          <img src="cid:logo" alt="EYIF Logo" style="max-width: 150px;">
+          <img src="https://edoyouthimpactforum.com/images/logo-2.png" alt="EYIF Logo" style="max-width: 150px;">
           <h1>Thank You!</h1>
         </div>
         <div class="content">
@@ -200,13 +200,6 @@ app.post("/contact", async (req, res) => {
       to: email,
       subject: "Thank You for Contacting EYIF 2025",
       html: thanksMessage,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "logo",
-        },
-      ],
     });
 
     // Send notification email to admin
@@ -215,13 +208,6 @@ app.post("/contact", async (req, res) => {
       to: process.env.CONTACT_EMAIL,
       subject: "New Contact Form Submission - EYIF 2025",
       html: contactEmailTemplate,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "logo",
-        },
-      ],
     });
 
     console.log("Contact confirmation email sent:", info.messageId);
@@ -298,7 +284,7 @@ app.post("/subscribe", async (req, res) => {
     <body>
       <div class="container">
         <div class="header">
-          <img src="cid:logo" alt="EYIF Logo" style="max-width: 150px;">
+          <img src="https://edoyouthimpactforum.com/images/logo-2.png" alt="EYIF Logo" style="max-width: 150px;">
           <h1>Thanks for Subscribing!</h1>
         </div>
         <div class="content">
@@ -364,7 +350,7 @@ app.post("/subscribe", async (req, res) => {
     <body>
       <div class="container">
         <div class="header">
-          <img src="cid:logo" alt="EYIF Logo" style="max-width: 150px;">
+          <img src="https://edoyouthimpactforum.com/images/logo-2.png" alt="EYIF Logo" style="max-width: 150px;">
           <h1>New Newsletter Subscription</h1>
         </div>
         <div class="content">
@@ -387,13 +373,6 @@ app.post("/subscribe", async (req, res) => {
       to: email,
       subject: "Thank You for Subscribing to EYIF 2025 Updates",
       html: subscribeEmailTemplate,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "logo",
-        },
-      ],
     });
 
     // Send notification email to admin
@@ -402,13 +381,6 @@ app.post("/subscribe", async (req, res) => {
       to: process.env.NEWSLETTER_EMAIL,
       subject: "New Newsletter Subscription - EYIF 2025",
       html: subscribeEmailReport,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "logo",
-        },
-      ],
     });
 
     console.log("Subscription confirmation email sent:", info.messageId);
@@ -513,7 +485,7 @@ app.post("/grant-registration", async (req, res) => {
     <body>
       <div class="container">
         <div class="header">
-          <img src="cid:logo" alt="EYIF Logo" style="max-width: 150px;">
+          <img src="https://edoyouthimpactforum.com/images/logo-2.png" alt="EYIF Logo" style="max-width: 150px;">
           <h1>New Grant Application</h1>
         </div>
         <div class="content">
@@ -631,7 +603,7 @@ app.post("/grant-registration", async (req, res) => {
     <body>
       <div class="container">
         <div class="header">
-          <img src="cid:logo" alt="EYIF Logo" style="max-width: 150px;">
+          <img src="https://edoyouthimpactforum.com/images/logo-2.png" alt="EYIF Logo" style="max-width: 150px;">
           <h1>Application Received!</h1>
         </div>
         <div class="content">
@@ -686,38 +658,38 @@ app.post("/grant-registration", async (req, res) => {
       to: email,
       subject: "Your EYIF 2025 Grant Application Has Been Received",
       html: applicantConfirmationTemplate,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "logo",
-        },
-      ],
     });
 
-    // Send notification email to admin
-    const report = await transporter.sendMail({
-      from: "Edo Youth Impact Forum 2025",
-      to: process.env.GRANT_EMAIL,
-      cc: [
-        "iguodalaefosa@gmail.com",
-        "ebuka0064@gmail.com",
-        "onovaeochuko@gmail.com",
-        "jephthahimade@gmail.com",
-      ],
-      subject: `New Grant Application: ${startupName} - ${categoryName}`,
-      html: grantRegistrationTemplate,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "logo",
-        },
-      ],
-    });
+    // Send notification emails to admins
+    const adminEmails = [
+      process.env.GRANT_EMAIL,
+      "iguodalaefosa@gmail.com",
+      "ebuka0064@gmail.com",
+      "onovaeochuko@gmail.com",
+      "jephthahimade@gmail.com",
+    ];
+
+    // Send individual emails to each admin
+    const adminEmailPromises = adminEmails.map((adminEmail) =>
+      transporter.sendMail({
+        from: "Edo Youth Impact Forum 2025",
+        to: adminEmail,
+        subject: `New Grant Application: ${startupName} - ${categoryName}`,
+        html: grantRegistrationTemplate,
+      })
+    );
+
+    // Wait for all admin emails to be sent
+    const adminReports = await Promise.all(adminEmailPromises);
 
     console.log("Grant application confirmation email sent:", info.messageId);
-    console.log("Grant application notification email sent:", report.messageId);
+    adminReports.forEach((report, index) => {
+      console.log(
+        `Grant application notification email sent to ${adminEmails[index]}:`,
+        report.messageId
+      );
+    });
+
     res.status(200).send({
       message: "Grant application submitted successfully",
       status: 200,
