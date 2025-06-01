@@ -125,7 +125,8 @@ yarn start
     "category": "waste-environment",
     "ideaSummary": "A solution for recycling plastic waste...",
     "problemStatement": "Plastic pollution is a growing problem...",
-    "fundUsage": "The funds will be used to develop a prototype..."
+    "fundUsage": "The funds will be used to develop a prototype...",
+    "otherCategory": "If category is 'other', specify the category here"
   }
   ```
 - **Categories**:
@@ -133,9 +134,8 @@ yarn start
   - `agriculture-food`
   - `waste-environment`
   - `culture-arts`
-  - `youth-wellbeing`
   - `skills-work`
-  - `transportation`
+  - `other` (If 'other', an additional 'otherCategory' field is required in the request body)
 
 ## License
 

@@ -407,22 +407,24 @@ app.post("/grant-registration", async (req, res) => {
     ideaSummary,
     problemStatement,
     fundUsage,
+    otherCategory,
   } = req.body;
 
-  const getCategory = (categoryId) => {
+  const getCategory = (categoryId, otherCategory) => {
     const categories = {
       "basic-education": "Basic Education",
       "agriculture-food": "Agriculture & Food Security",
       "waste-environment": "Waste, Environment & Clean Energy",
       "culture-arts": "Culture, Arts & Tourism",
-      "youth-wellbeing": "Youth Well-being & Mental Health",
       "skills-work": "Skills, Work & Entrepreneurship",
-      transportation: "Transportation & Infrastructure",
     };
+    if (categoryId === "other") {
+      return otherCategory;
+    }
     return categories[categoryId] || categoryId;
   };
 
-  const categoryName = getCategory(category);
+  const categoryName = getCategory(category, otherCategory);
 
   const grantRegistrationTemplate = `
     <!DOCTYPE html>
