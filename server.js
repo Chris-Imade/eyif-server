@@ -925,7 +925,6 @@ app.post("/reserve-seat", async (req, res) => {
     // Send notification emails to admins (same as grant-registration)
     const adminEmails = [
       process.env.GRANT_EMAIL,
-      "iguodalaefosa@gmail.com",
       "ebuka0064@gmail.com",
       "onovaeochuko@gmail.com",
       "jephthahimade@gmail.com",
