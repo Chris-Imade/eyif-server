@@ -481,9 +481,23 @@ app.post("/grant-registration", async (req, res) => {
     otherCategory,
   } = req.body;
 
+  console.log("Received grant application data:", {
+    fullName,
+    email,
+    phone,
+    startupName,
+    category,
+    otherCategory,
+    // Not logging the full text fields to keep logs clean
+    ideaSummaryLength: ideaSummary?.length,
+    problemStatementLength: problemStatement?.length,
+    fundUsageLength: fundUsage?.length,
+  });
+
   // Save to DB
   try {
-    await GrantApplication.create({
+    console.log("Attempting to save grant application to database...");
+    const savedApplication = await GrantApplication.create({
       fullName,
       email,
       phone,
@@ -494,8 +508,13 @@ app.post("/grant-registration", async (req, res) => {
       fundUsage,
       otherCategory,
     });
+    console.log("Successfully saved grant application:", savedApplication._id);
   } catch (dbError) {
-    console.error("Error saving grant application to DB:", dbError);
+    console.error("Error saving grant application to DB:", {
+      error: dbError.message,
+      stack: dbError.stack,
+      validationErrors: dbError.errors, // This will show mongoose validation errors if any
+    });
     return res.status(500).send({
       message: "Error saving grant application",
       status: 500,
