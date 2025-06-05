@@ -26,6 +26,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Mailgun setup
+let useMailgun = false;
+let mailgun;
+if (process.env.MAIL_GUN && process.env.MAILGUN_DOMAIN) {
+  mailgun = require("mailgun-js")({
+    apiKey: process.env.MAIL_GUN,
+    domain: process.env.MAILGUN_DOMAIN,
+    host: "api.mailgun.net",
+  });
+  useMailgun = true;
+}
+
 // Configure Nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -48,6 +60,31 @@ mongoose
   })
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
+
+// Helper to send email using Mailgun or Nodemailer
+async function sendMail({ to, subject, html }) {
+  if (useMailgun) {
+    const data = {
+      from: `Edo Youth Impact Forum 2025 <mailgun@${process.env.MAILGUN_DOMAIN}>`,
+      to,
+      subject,
+      html,
+    };
+    return new Promise((resolve, reject) => {
+      mailgun.messages().send(data, (error, body) => {
+        if (error) return reject(error);
+        resolve(body);
+      });
+    });
+  } else {
+    return transporter.sendMail({
+      from: "Edo Youth Impact Forum 2025",
+      to,
+      subject,
+      html,
+    });
+  }
+}
 
 // Contact Form Route
 app.post("/contact", async (req, res) => {
@@ -221,16 +258,14 @@ app.post("/contact", async (req, res) => {
 
   try {
     // Send confirmation email to the sender
-    const info = await transporter.sendMail({
-      from: "Edo Youth Impact Forum 2025",
+    const info = await sendMail({
       to: email,
       subject: "Thank You for Contacting EYIF 2025",
       html: thanksMessage,
     });
 
     // Send notification email to admin
-    const report = await transporter.sendMail({
-      from: "Edo Youth Impact Forum 2025",
+    const report = await sendMail({
       to: process.env.CONTACT_EMAIL,
       subject: "New Contact Form Submission - EYIF 2025",
       html: contactEmailTemplate,
@@ -406,16 +441,14 @@ app.post("/subscribe", async (req, res) => {
 
   try {
     // Send confirmation email to subscriber
-    const info = await transporter.sendMail({
-      from: "Edo Youth Impact Forum 2025",
+    const info = await sendMail({
       to: email,
       subject: "Thank You for Subscribing to EYIF 2025 Updates",
       html: subscribeEmailTemplate,
     });
 
     // Send notification email to admin
-    const report = await transporter.sendMail({
-      from: "Edo Youth Impact Forum 2025",
+    const report = await sendMail({
       to: process.env.NEWSLETTER_EMAIL,
       subject: "New Newsletter Subscription - EYIF 2025",
       html: subscribeEmailReport,
@@ -715,8 +748,7 @@ app.post("/grant-registration", async (req, res) => {
 
   try {
     // Send confirmation email to applicant
-    const info = await transporter.sendMail({
-      from: "Edo Youth Impact Forum 2025",
+    const info = await sendMail({
       to: email,
       subject: "Your EYIF 2025 Grant Application Has Been Received",
       html: applicantConfirmationTemplate,
@@ -733,8 +765,7 @@ app.post("/grant-registration", async (req, res) => {
 
     // Send individual emails to each admin
     const adminEmailPromises = adminEmails.map((adminEmail) =>
-      transporter.sendMail({
-        from: "Edo Youth Impact Forum 2025",
+      sendMail({
         to: adminEmail,
         subject: `New Grant Application: ${startupName} - ${categoryName}`,
         html: grantRegistrationTemplate,
@@ -866,8 +897,7 @@ app.post("/reserve-seat", async (req, res) => {
 
   try {
     // Send confirmation email to the user
-    const info = await transporter.sendMail({
-      from: "Edo Youth Impact Forum 2025",
+    const info = await sendMail({
       to: email,
       subject: "Your Seat Reservation for EYIF 2025 is Confirmed",
       html: seatRecipientTemplate,
@@ -884,8 +914,7 @@ app.post("/reserve-seat", async (req, res) => {
 
     // Send individual emails to each admin
     const adminEmailPromises = adminEmails.map((adminEmail) =>
-      transporter.sendMail({
-        from: "Edo Youth Impact Forum 2025",
+      sendMail({
         to: adminEmail,
         subject: `New Seat Reservation: ${fullName}`,
         html: seatAdminTemplate,

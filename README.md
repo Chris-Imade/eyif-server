@@ -53,8 +53,14 @@ Backend server for the Edo Youth Impact Forum (EYIF) 2025 website. This server h
    - `GRANT_EMAIL`: Email where grant applications will be sent
    - `SEAT_RESERVATION_EMAIL`: Email where seat reservation notifications will be sent
    - `MONGODB_URI`: Your MongoDB connection string (e.g., mongodb+srv://user:password@cluster.mongodb.net/dbname)
+   - `MAIL_GUN`: Your Mailgun API key (if using Mailgun for email)
+   - `MAILGUN_DOMAIN`: Your Mailgun domain (e.g., mg.example.com)
 
    **Note:** For `EMAIL_PASSWORD`, you need to use an App Password if you have 2-Factor Authentication enabled on your Google account. You can generate this from your Google Account settings.
+
+   **Email Provider:**
+
+   - By default, the server uses Gmail SMTP for sending emails. To use Mailgun instead, set `MAIL_GUN` and `MAILGUN_DOMAIN` in your `.env` file. The server will automatically use Mailgun if these are present.
 
 5. Add your logo:
    - Place your logo file in the `assets` directory and name it `logo.png`
