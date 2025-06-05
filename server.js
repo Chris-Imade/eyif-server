@@ -3,6 +3,11 @@ const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
+const mongoose = require("mongoose");
+const Contact = require("./models/Contact");
+const NewsletterSubscription = require("./models/NewsletterSubscription");
+const GrantApplication = require("./models/GrantApplication");
+const SeatReservation = require("./models/SeatReservation");
 
 dotenv.config();
 
@@ -35,10 +40,31 @@ const transporter = nodemailer.createTransport({
 
 const logoPath = path.join(__dirname, "assets", "logo.png");
 
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
 // Contact Form Route
 app.post("/contact", async (req, res) => {
   const { firstName, lastName, email, phone, message } = req.body;
   const fullName = `${firstName} ${lastName}`;
+
+  // Save to DB
+  try {
+    await Contact.create({ firstName, lastName, email, phone, message });
+  } catch (dbError) {
+    console.error("Error saving contact form to DB:", dbError);
+    return res.status(500).send({
+      message: "Error saving contact form",
+      status: 500,
+      error: dbError.message,
+    });
+  }
 
   const contactEmailTemplate = `
     <!DOCTYPE html>
@@ -229,6 +255,18 @@ app.post("/contact", async (req, res) => {
 app.post("/subscribe", async (req, res) => {
   const { email } = req.body;
 
+  // Save to DB
+  try {
+    await NewsletterSubscription.create({ email });
+  } catch (dbError) {
+    console.error("Error saving newsletter subscription to DB:", dbError);
+    return res.status(500).send({
+      message: "Error saving subscription",
+      status: 500,
+      error: dbError.message,
+    });
+  }
+
   const subscribeEmailTemplate = `
     <!DOCTYPE html>
     <html lang="en">
@@ -409,6 +447,28 @@ app.post("/grant-registration", async (req, res) => {
     fundUsage,
     otherCategory,
   } = req.body;
+
+  // Save to DB
+  try {
+    await GrantApplication.create({
+      fullName,
+      email,
+      phone,
+      startupName,
+      category,
+      ideaSummary,
+      problemStatement,
+      fundUsage,
+      otherCategory,
+    });
+  } catch (dbError) {
+    console.error("Error saving grant application to DB:", dbError);
+    return res.status(500).send({
+      message: "Error saving grant application",
+      status: 500,
+      error: dbError.message,
+    });
+  }
 
   const getCategory = (categoryId, otherCategory) => {
     const categories = {
@@ -664,7 +724,6 @@ app.post("/grant-registration", async (req, res) => {
 
     // Send notification emails to admins
     const adminEmails = [
-      process.env.GRANT_EMAIL,
       "iguodalaefosa@gmail.com",
       "ebuka0064@gmail.com",
       "onovaeochuko@gmail.com",
@@ -700,6 +759,154 @@ app.post("/grant-registration", async (req, res) => {
     console.error("Error sending grant application email:", error);
     res.status(500).send({
       message: "Error submitting grant application",
+      status: 500,
+      error: error.message,
+    });
+  }
+});
+
+// Seat Reservation Route
+app.post("/reserve-seat", async (req, res) => {
+  const { firstName, lastName, email, phone } = req.body;
+  const fullName = `${firstName} ${lastName}`;
+
+  // Save to DB
+  try {
+    await SeatReservation.create({ firstName, lastName, email, phone });
+  } catch (dbError) {
+    console.error("Error saving seat reservation to DB:", dbError);
+    return res.status(500).send({
+      message: "Error saving seat reservation",
+      status: 500,
+      error: dbError.message,
+    });
+  }
+
+  const seatRecipientTemplate = `
+    <!DOCTYPE html>
+    <html lang=\"en\">
+    <head>
+      <meta charset=\"UTF-8\">
+      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+      <title>Seat Reservation Confirmed</title>
+      <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background-color: #4E31AA; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px 30px; line-height: 1.6; }
+        .footer { background-color: #f4f4f4; text-align: center; padding: 15px; font-size: 14px; color: #666; }
+        .btn { display: inline-block; background-color: #4E31AA; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      <div class=\"container\">
+        <div class=\"header\">
+          <img src=\"https://edoyouthimpactforum.com/images/logo-2.png\" alt=\"EYIF Logo\" style=\"max-width: 150px;\">
+          <h1>Seat Reserved!</h1>
+        </div>
+        <div class=\"content\">
+          <p>Dear <strong>${fullName}</strong>,</p>
+          <p>Your seat for the Edo Youth Impact Forum (EYIF) 2025 event has been successfully reserved.</p>
+          <p>We look forward to seeing you at the event!</p>
+          <p><strong>Reservation Details:</strong></p>
+          <ul>
+            <li><strong>Name:</strong> ${fullName}</li>
+            <li><strong>Email:</strong> ${email}</li>
+            <li><strong>Phone:</strong> ${phone}</li>
+          </ul>
+          <div style=\"text-align: center; margin-top: 20px;\">
+            <a href=\"${process.env.WEBSITE_URL}\" class=\"btn\">Visit Our Website</a>
+          </div>
+        </div>
+        <div class=\"footer\">
+          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const seatAdminTemplate = `
+    <!DOCTYPE html>
+    <html lang=\"en\">
+    <head>
+      <meta charset=\"UTF-8\">
+      <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+      <title>New Seat Reservation</title>
+      <style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4E31AA; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .footer { background-color: #4E31AA; padding: 15px; text-align: center; color: white; font-size: 14px; }
+        .info-item { margin-bottom: 10px; }
+        .info-label { font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <div class=\"container\">
+        <div class=\"header\">
+          <img src=\"https://edoyouthimpactforum.com/images/logo-2.png\" alt=\"EYIF Logo\" style=\"max-width: 150px;\">
+          <h1>New Seat Reservation</h1>
+        </div>
+        <div class=\"content\">
+          <div class=\"info-item\"><span class=\"info-label\">Name:</span> ${fullName}</div>
+          <div class=\"info-item\"><span class=\"info-label\">Email:</span> ${email}</div>
+          <div class=\"info-item\"><span class=\"info-label\">Phone:</span> ${phone}</div>
+          <div class=\"info-item\"><span class=\"info-label\">Reservation Date:</span> ${new Date().toLocaleString()}</div>
+        </div>
+        <div class=\"footer\">
+          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    // Send confirmation email to the user
+    const info = await transporter.sendMail({
+      from: "Edo Youth Impact Forum 2025",
+      to: email,
+      subject: "Your Seat Reservation for EYIF 2025 is Confirmed",
+      html: seatRecipientTemplate,
+    });
+
+    // Send notification emails to admins (same as grant-registration)
+    const adminEmails = [
+      "iguodalaefosa@gmail.com",
+      "ebuka0064@gmail.com",
+      "onovaeochuko@gmail.com",
+      "jephthahimade@gmail.com",
+    ];
+
+    // Send individual emails to each admin
+    const adminEmailPromises = adminEmails.map((adminEmail) =>
+      transporter.sendMail({
+        from: "Edo Youth Impact Forum 2025",
+        to: adminEmail,
+        subject: `New Seat Reservation: ${fullName}`,
+        html: seatAdminTemplate,
+      })
+    );
+
+    // Wait for all admin emails to be sent
+    const adminReports = await Promise.all(adminEmailPromises);
+
+    console.log("Seat reservation confirmation email sent:", info.messageId);
+    adminReports.forEach((report, index) => {
+      console.log(
+        `Seat reservation notification email sent to ${adminEmails[index]}:`,
+        report.messageId
+      );
+    });
+    res
+      .status(200)
+      .send({ message: "Seat reserved successfully", status: 200 });
+  } catch (error) {
+    console.error("Error sending seat reservation email:", error);
+    res.status(500).send({
+      message: "Error submitting seat reservation",
       status: 500,
       error: error.message,
     });

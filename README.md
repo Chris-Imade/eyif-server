@@ -51,6 +51,8 @@ Backend server for the Edo Youth Impact Forum (EYIF) 2025 website. This server h
    - `CONTACT_EMAIL`: Email where contact form submissions will be sent
    - `NEWSLETTER_EMAIL`: Email where newsletter subscriptions will be sent
    - `GRANT_EMAIL`: Email where grant applications will be sent
+   - `SEAT_RESERVATION_EMAIL`: Email where seat reservation notifications will be sent
+   - `MONGODB_URI`: Your MongoDB connection string (e.g., mongodb+srv://user:password@cluster.mongodb.net/dbname)
 
    **Note:** For `EMAIL_PASSWORD`, you need to use an App Password if you have 2-Factor Authentication enabled on your Google account. You can generate this from your Google Account settings.
 
@@ -136,6 +138,22 @@ yarn start
   - `culture-arts`
   - `skills-work`
   - `other` (If 'other', an additional 'otherCategory' field is required in the request body)
+
+### Seat Reservation
+
+- **URL**: `/reserve-seat`
+- **Method**: `POST`
+- **Request Body**:
+  ```json
+  {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "johndoe@example.com",
+    "phone": "+2341234567890"
+  }
+  ```
+
+On success, the user will receive a confirmation email and the admin (configured via `SEAT_RESERVATION_EMAIL` in your `.env`) will be notified of the reservation.
 
 ## License
 
