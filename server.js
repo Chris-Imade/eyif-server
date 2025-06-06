@@ -779,7 +779,7 @@ app.post("/grant-registration", async (req, res) => {
       "iguodalaefosa@gmail.com",
       "ebuka0064@gmail.com",
       "onovaeochuko@gmail.com",
-      "jephthahimade@gmail.com",
+      // "jephthahimade@gmail.com",
     ];
 
     // Send individual emails to each admin
@@ -923,18 +923,16 @@ app.post("/reserve-seat", async (req, res) => {
     });
 
     // Send notification emails to admins (same as grant-registration)
-    const adminEmails = [
-      "jephthahimade@gmail.com",
-    ];
+    // const adminEmails = ["jephthahimade@gmail.com"];
 
-    // Send individual emails to each admin
-    const adminEmailPromises = adminEmails.map((adminEmail) =>
-      sendMail({
-        to: adminEmail,
-        subject: `New Seat Reservation: ${fullName}`,
-        html: seatAdminTemplate,
-      })
-    );
+    // // Send individual emails to each admin
+    // const adminEmailPromises = adminEmails.map((adminEmail) =>
+    //   sendMail({
+    //     to: adminEmail,
+    //     subject: `New Seat Reservation: ${fullName}`,
+    //     html: seatAdminTemplate,
+    //   })
+    // );
 
     // Wait for all admin emails to be sent
     const adminReports = await Promise.all(adminEmailPromises);
