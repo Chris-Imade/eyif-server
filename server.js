@@ -8,6 +8,7 @@ const Contact = require("./models/Contact");
 const NewsletterSubscription = require("./models/NewsletterSubscription");
 const GrantApplication = require("./models/GrantApplication");
 const SeatReservation = require("./models/SeatReservation");
+const reportsService = require("./services/reportsService");
 
 dotenv.config();
 
@@ -953,6 +954,83 @@ app.post("/reserve-seat", async (req, res) => {
       message: "Error submitting seat reservation",
       status: 500,
       error: error.message,
+    });
+  }
+});
+
+// Reports Dashboard Route
+app.get("/reports", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "reports-dashboard.html"));
+});
+
+// Reports API Routes
+app.get("/reports/api/analytics", async (req, res) => {
+  try {
+    const analytics = await reportsService.getAllAnalytics();
+    const overview = await reportsService.getDatabaseOverview();
+    
+    res.json({
+      analytics,
+      overview,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("Error getting analytics:", error);
+    res.status(500).json({
+      error: "Failed to get analytics",
+      message: error.message
+    });
+  }
+});
+
+app.get("/reports/api/schema/:schemaName", async (req, res) => {
+  try {
+    const { schemaName } = req.params;
+    const includeDuplicates = req.query.includeDuplicates !== "false";
+    
+    const data = await reportsService.getSchemaData(schemaName, includeDuplicates);
+    res.json(data);
+  } catch (error) {
+    console.error(`Error getting schema data for ${req.params.schemaName}:`, error);
+    res.status(500).json({
+      error: "Failed to get schema data",
+      message: error.message
+    });
+  }
+});
+
+app.get("/reports/api/download/:schemaName", async (req, res) => {
+  try {
+    const { schemaName } = req.params;
+    const includeDuplicates = req.query.includeDuplicates !== "false";
+    
+    const data = await reportsService.getSchemaData(schemaName, includeDuplicates);
+    const csv = reportsService.dataToCSV(data, schemaName);
+    
+    const filename = `${schemaName}_${new Date().toISOString().split('T')[0]}.csv`;
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
+  } catch (error) {
+    console.error(`Error downloading CSV for ${req.params.schemaName}:`, error);
+    res.status(500).json({
+      error: "Failed to generate CSV",
+      message: error.message
+    });
+  }
+});
+
+app.get("/reports/api/duplicates/:schemaName", async (req, res) => {
+  try {
+    const { schemaName } = req.params;
+    const duplicateAnalysis = await reportsService.getDuplicateAnalysis(schemaName);
+    res.json(duplicateAnalysis);
+  } catch (error) {
+    console.error(`Error getting duplicate analysis for ${req.params.schemaName}:`, error);
+    res.status(500).json({
+      error: "Failed to get duplicate analysis",
+      message: error.message
     });
   }
 });

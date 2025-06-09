@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EYIF 2025 - Database Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4E31AA 0%, #6B46C1 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4E31AA;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .schema-section {
+            margin-bottom: 3rem;
+        }
+
+        .schema-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+
+        .schema-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .schema-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .schema-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .schema-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background-color: #cbd5e1;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .toggle.active {
+            background-color: #4E31AA;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle.active .toggle-slider {
+            transform: translateX(26px);
+        }
+
+        .btn {
+            background: #4E31AA;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #3730a3;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4E31AA;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table {
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            position: sticky;
+            top: 0;
+        }
+
+        .table tr:hover {
+            background: #f8fafc;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .chart-container {
+            padding: 1.5rem;
+            height: 300px;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #4E31AA;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(78, 49, 170, 0.3);
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+
+        .refresh-btn:hover {
+            background: #3730a3;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .schema-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .schema-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 EYIF 2025 Analytics Dashboard</h1>
+        <p>Comprehensive database analytics and reporting system</p>
+    </div>
+
+    <div class="container">
+        <!-- Overview Cards -->
+        <div class="overview-cards" id="overviewCards">
+            <div class="card">
+                <div class="card-title">Total Records</div>
+                <div class="card-value" id="totalRecords">-</div>
+                <div class="card-description">All database entries</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Unique Records</div>
+                <div class="card-value" id="uniqueRecords">-</div>
+                <div class="card-description">Without duplicates</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Duplicate Entries</div>
+                <div class="card-value" id="duplicateRecords">-</div>
+                <div class="card-description">Potential duplicates</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Active Schemas</div>
+                <div class="card-value" id="totalSchemas">-</div>
+                <div class="card-description">Database collections</div>
+            </div>
+        </div>
+
+        <!-- Schema Sections -->
+        <div id="schemaSections">
+            <!-- Schema sections will be dynamically generated here -->
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="refreshData()" title="Refresh Data">
+        🔄
+    </button>
+
+    <script>
+        let analyticsData = {};
+        let duplicateToggles = {};
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAnalytics();
+        });
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/reports/api/analytics');
+                const data = await response.json();
+                analyticsData = data;
+                renderDashboard(data);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showError('Failed to load analytics data');
+            }
+        }
+
+        // Render dashboard
+        function renderDashboard(data) {
+            renderOverview(data.overview);
+            renderSchemas(data.analytics);
+        }
+
+        // Render overview cards
+        function renderOverview(overview) {
+            document.getElementById('totalRecords').textContent = overview.totalRecords.toLocaleString();
+            document.getElementById('uniqueRecords').textContent = overview.totalUniqueRecords.toLocaleString();
+            document.getElementById('duplicateRecords').textContent = overview.totalDuplicates.toLocaleString();
+            document.getElementById('totalSchemas').textContent = overview.totalSchemas;
+        }
+
+        // Render schema sections
+        function renderSchemas(analytics) {
+            const container = document.getElementById('schemaSections');
+            container.innerHTML = '';
+
+            Object.entries(analytics).forEach(([schemaName, data]) => {
+                const section = createSchemaSection(schemaName, data);
+                container.appendChild(section);
+            });
+        }
+
+        // Create schema section
+        function createSchemaSection(schemaName, data) {
+            const section = document.createElement('div');
+            section.className = 'schema-section';
+            
+            const includeDuplicates = duplicateToggles[schemaName] !== false;
+            const currentCount = includeDuplicates ? data.total : data.unique;
+            
+            section.innerHTML = `
+                <div class="schema-card">
+                    <div class="schema-header">
+                        <div>
+                            <div class="schema-title">${data.schema.displayName}</div>
+                            <div class="schema-description">${data.schema.description}</div>
+                        </div>
+                        <div class="schema-controls">
+                            <div class="toggle-container">
+                                <span>Include Duplicates</span>
+                                <div class="toggle ${includeDuplicates ? 'active' : ''}" onclick="toggleDuplicates('${schemaName}')">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                            <button class="btn" onclick="downloadCSV('${schemaName}')">📥 Download CSV</button>
+                            <button class="btn btn-secondary" onclick="viewDuplicates('${schemaName}')">🔍 View Duplicates</button>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">${currentCount.toLocaleString()}</div>
+                            <div class="stat-label">Current View</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.total.toLocaleString()}</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.unique.toLocaleString()}</div>
+                            <div class="stat-label">Unique</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.duplicates.toLocaleString()}</div>
+                            <div class="stat-label">Duplicates</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.recent.toLocaleString()}</div>
+                            <div class="stat-label">Recent (7d)</div>
+                        </div>
+                    </div>
+                    <div class="data-table" id="table-${schemaName}">
+                        <div class="loading">Loading data...</div>
+                    </div>
+                </div>
+            `;
+
+            // Load table data
+            loadSchemaData(schemaName, includeDuplicates);
+
+            return section;
+        }
+
+        // Load schema data
+        async function loadSchemaData(schemaName, includeDuplicates = true) {
+            try {
+                const response = await fetch(`/reports/api/schema/${schemaName}?includeDuplicates=${includeDuplicates}`);
+                const data = await response.json();
+                renderSchemaTable(schemaName, data);
+            } catch (error) {
+                console.error(`Error loading ${schemaName} data:`, error);
+                document.getElementById(`table-${schemaName}`).innerHTML = 
+                    '<div class="error">Failed to load data</div>';
+            }
+        }
+
+        // Render schema table
+        function renderSchemaTable(schemaName, data) {
+            const container = document.getElementById(`table-${schemaName}`);
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="loading">No data available</div>';
+                return;
+            }
+
+            const fields = analyticsData.analytics[schemaName].schema.fields;
+            
+            let tableHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            ${fields.map(field => `<th>${formatFieldName(field)}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.slice(0, 50).forEach(item => { // Limit to 50 rows for performance
+                tableHTML += '<tr>';
+                fields.forEach(field => {
+                    let value = item[field] || '';
+                    if (field === 'createdAt' && value) {
+                        value = new Date(value).toLocaleDateString();
+                    }
+                    if (typeof value === 'string' && value.length > 50) {
+                        value = value.substring(0, 50) + '...';
+                    }
+                    tableHTML += `<td>${escapeHtml(value)}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+
+            tableHTML += '</tbody></table>';
+            
+            if (data.length > 50) {
+                tableHTML += `<div style="text-align: center; padding: 1rem; color: #6b7280;">
+                    Showing first 50 of ${data.length} records. Download CSV for complete data.
+                </div>`;
+            }
+
+            container.innerHTML = tableHTML;
+        }
+
+        // Toggle duplicates
+        async function toggleDuplicates(schemaName) {
+            duplicateToggles[schemaName] = !duplicateToggles[schemaName];
+            const includeDuplicates = duplicateToggles[schemaName] !== false;
+            
+            // Update toggle UI
+            const toggle = document.querySelector(`[onclick="toggleDuplicates('${schemaName}')"]`);
+            toggle.classList.toggle('active', includeDuplicates);
+            
+            // Reload data
+            await loadSchemaData(schemaName, includeDuplicates);
+            
+            // Update stats
+            const data = analyticsData.analytics[schemaName];
+            const currentCount = includeDuplicates ? data.total : data.unique;
+            const statValue = toggle.closest('.schema-card').querySelector('.stat-value');
+            statValue.textContent = currentCount.toLocaleString();
+        }
+
+        // Download CSV
+        async function downloadCSV(schemaName) {
+            try {
+                const includeDuplicates = duplicateToggles[schemaName] !== false;
+                const response = await fetch(`/reports/api/download/${schemaName}?includeDuplicates=${includeDuplicates}`);
+                const blob = await response.blob();
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${schemaName}_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error downloading CSV:', error);
+                alert('Failed to download CSV file');
+            }
+        }
+
+        // View duplicates
+        async function viewDuplicates(schemaName) {
+            try {
+                const response = await fetch(`/reports/api/duplicates/${schemaName}`);
+                const data = await response.json();
+                
+                let message = `Duplicate Analysis for ${analyticsData.analytics[schemaName].schema.displayName}:\n\n`;
+                message += `Total Entries: ${data.totalEntries}\n`;
+                message += `Unique Emails: ${data.uniqueEmails}\n`;
+                message += `Duplicate Emails: ${data.duplicateEmails}\n`;
+                message += `Duplicate Entries: ${data.duplicateEntries}\n\n`;
+                
+                if (data.duplicates.length > 0) {
+                    message += 'Top Duplicates:\n';
+                    data.duplicates.slice(0, 5).forEach(dup => {
+                        message += `• ${dup.email}: ${dup.count} entries\n`;
+                    });
+                } else {
+                    message += 'No duplicates found!';
+                }
+                
+                alert(message);
+            } catch (error) {
+                console.error('Error loading duplicates:', error);
+                alert('Failed to load duplicate analysis');
+            }
+        }
+
+        // Refresh data
+        async function refreshData() {
+            const btn = document.querySelector('.refresh-btn');
+            btn.style.transform = 'rotate(360deg)';
+            await loadAnalytics();
+            setTimeout(() => {
+                btn.style.transform = 'rotate(0deg)';
+            }, 500);
+        }
+
+        // Utility functions
+        function formatFieldName(field) {
+            return field.replace(/([A-Z])/g, ' $1')
+                       .replace(/^./, str => str.toUpperCase())
+                       .replace(/Id$/, 'ID');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showError(message) {
+            const container = document.getElementById('schemaSections');
+            container.innerHTML = `<div class="error">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
