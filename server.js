@@ -28,13 +28,17 @@ app.use((req, res, next) => {
 });
 
 // Mailgun setup
+const FormData = require("form-data");
+const Mailgun = require("mailgun.js");
+
 let useMailgun = false;
-let mailgun;
+let mg;
 if (process.env.MAIL_GUN && process.env.MAILGUN_DOMAIN) {
-  mailgun = require("mailgun-js")({
-    apiKey: process.env.MAIL_GUN,
-    domain: process.env.MAILGUN_DOMAIN,
-    host: "api.mailgun.net",
+  const mailgun = new Mailgun(FormData);
+  mg = mailgun.client({
+    username: "api",
+    key: process.env.MAIL_GUN,
+    url: "https://api.eu.mailgun.net"
   });
   useMailgun = true;
 }
@@ -55,28 +59,24 @@ const logoPath = path.join(__dirname, "assets", "logo.png");
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Helper to send email using Mailgun or Nodemailer
 async function sendMail({ to, subject, html }) {
   if (useMailgun) {
-    const data = {
-      from: `Edo Youth Impact Forum 2025 <mailgun@${process.env.MAILGUN_DOMAIN}>`,
-      to,
-      subject,
-      html,
-    };
-    return new Promise((resolve, reject) => {
-      mailgun.messages().send(data, (error, body) => {
-        if (error) return reject(error);
-        resolve(body);
+    try {
+      const data = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
+        from: `Edo Youth Impact Forum 2025 <info@${process.env.MAILGUN_DOMAIN}>`,
+        to,
+        subject,
+        html,
       });
-    });
+      return data;
+    } catch (error) {
+      throw error;
+    }
   } else {
     return transporter.sendMail({
       from: "Edo Youth Impact Forum 2025",
@@ -272,8 +272,8 @@ app.post("/contact", async (req, res) => {
       html: contactEmailTemplate,
     });
 
-    console.log("Contact confirmation email sent:", info.messageId);
-    console.log("Contact notification email sent:", report.messageId);
+    console.log("Contact confirmation email sent:", info.id || info.messageId || "Success");
+    console.log("Contact notification email sent:", report.id || report.messageId || "Success");
     res
       .status(200)
       .send({ message: "Contact form submitted successfully", status: 200 });
@@ -455,8 +455,8 @@ app.post("/subscribe", async (req, res) => {
       html: subscribeEmailReport,
     });
 
-    console.log("Subscription confirmation email sent:", info.messageId);
-    console.log("Subscription notification email sent:", report.messageId);
+    console.log("Subscription confirmation email sent:", info.id || info.messageId || "Success");
+    console.log("Subscription notification email sent:", report.id || report.messageId || "Success");
     res.status(200).send({ message: "Subscription successful", status: 200 });
   } catch (error) {
     console.error("Error sending subscription email:", error);
@@ -968,17 +968,17 @@ app.get("/reports/api/analytics", async (req, res) => {
   try {
     const analytics = await reportsService.getAllAnalytics();
     const overview = await reportsService.getDatabaseOverview();
-    
+
     res.json({
       analytics,
       overview,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error("Error getting analytics:", error);
     res.status(500).json({
       error: "Failed to get analytics",
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -987,14 +987,20 @@ app.get("/reports/api/schema/:schemaName", async (req, res) => {
   try {
     const { schemaName } = req.params;
     const includeDuplicates = req.query.includeDuplicates !== "false";
-    
-    const data = await reportsService.getSchemaData(schemaName, includeDuplicates);
+
+    const data = await reportsService.getSchemaData(
+      schemaName,
+      includeDuplicates
+    );
     res.json(data);
   } catch (error) {
-    console.error(`Error getting schema data for ${req.params.schemaName}:`, error);
+    console.error(
+      `Error getting schema data for ${req.params.schemaName}:`,
+      error
+    );
     res.status(500).json({
       error: "Failed to get schema data",
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -1003,20 +1009,25 @@ app.get("/reports/api/download/:schemaName", async (req, res) => {
   try {
     const { schemaName } = req.params;
     const includeDuplicates = req.query.includeDuplicates !== "false";
-    
-    const data = await reportsService.getSchemaData(schemaName, includeDuplicates);
+
+    const data = await reportsService.getSchemaData(
+      schemaName,
+      includeDuplicates
+    );
     const csv = reportsService.dataToCSV(data, schemaName);
-    
-    const filename = `${schemaName}_${new Date().toISOString().split('T')[0]}.csv`;
-    
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    const filename = `${schemaName}_${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.send(csv);
   } catch (error) {
     console.error(`Error downloading CSV for ${req.params.schemaName}:`, error);
     res.status(500).json({
       error: "Failed to generate CSV",
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -1024,13 +1035,18 @@ app.get("/reports/api/download/:schemaName", async (req, res) => {
 app.get("/reports/api/duplicates/:schemaName", async (req, res) => {
   try {
     const { schemaName } = req.params;
-    const duplicateAnalysis = await reportsService.getDuplicateAnalysis(schemaName);
+    const duplicateAnalysis = await reportsService.getDuplicateAnalysis(
+      schemaName
+    );
     res.json(duplicateAnalysis);
   } catch (error) {
-    console.error(`Error getting duplicate analysis for ${req.params.schemaName}:`, error);
+    console.error(
+      `Error getting duplicate analysis for ${req.params.schemaName}:`,
+      error
+    );
     res.status(500).json({
       error: "Failed to get duplicate analysis",
-      message: error.message
+      message: error.message,
     });
   }
 });
