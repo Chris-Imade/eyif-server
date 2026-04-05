@@ -53,14 +53,16 @@ Backend server for the Edo Youth Impact Forum (EYIF) 2025 website. This server h
    - `GRANT_EMAIL`: Email where grant applications will be sent
    - `SEAT_RESERVATION_EMAIL`: Email where seat reservation notifications will be sent
    - `MONGODB_URI`: Your MongoDB connection string (e.g., mongodb+srv://user:password@cluster.mongodb.net/dbname)
-   - `MAIL_GUN`: Your Mailgun API key (if using Mailgun for email)
-   - `MAILGUN_DOMAIN`: Your Mailgun domain (e.g., mg.example.com)
+   - `ZEPTO_MAIL_TOKEN`: Your ZeptoMail Send Mail Token
+   - `ZEPTO_MAIL_HOST`: ZeptoMail API host (e.g., api.zeptomail.com)
+   - `ZEPTO_SENDER_DOMAIN`: Your ZeptoMail sender domain (e.g., edoyouthimpactforum.com)
+   - `ZEPTO_AGENT_ALIAS`: Your ZeptoMail Mail Agent alias
 
    **Note:** For `EMAIL_PASSWORD`, you need to use an App Password if you have 2-Factor Authentication enabled on your Google account. You can generate this from your Google Account settings.
 
    **Email Provider:**
 
-   - By default, the server uses Gmail SMTP for sending emails. To use Mailgun instead, set `MAIL_GUN` and `MAILGUN_DOMAIN` in your `.env` file. The server will automatically use Mailgun if these are present.
+   - By default, the server uses Gmail SMTP for sending emails. To use ZeptoMail instead, set `ZEPTO_MAIL_TOKEN` and `ZEPTO_SENDER_DOMAIN` in your `.env` file. The server will automatically use ZeptoMail if these are present.
 
 5. Add your logo:
    - Place your logo file in the `assets` directory and name it `logo.png`

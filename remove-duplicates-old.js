@@ -17,9 +17,9 @@ async function findAndRemoveDuplicates() {
     console.log('Checking LAST YEAR\'S collections (without _2026 suffix)\n');
 
     const collections = [
-      { name: 'Idea Track (Old)', model: IdeaTrackOld, key: 'email' },
-      { name: 'Build Track (Old)', model: BuildTrackOld, key: 'email' },
-      { name: 'Scale Track (Old)', model: ScaleTrackOld, key: 'email' }
+      { name: 'Idea Track (Old)', model: IdeaTrackOld, key: 'fullName' },
+      { name: 'Build Track (Old)', model: BuildTrackOld, key: 'fullName' },
+      { name: 'Scale Track (Old)', model: ScaleTrackOld, key: 'fullName' }
     ];
 
     let totalDuplicatesFound = 0;
@@ -30,7 +30,7 @@ async function findAndRemoveDuplicates() {
       console.log(`Checking ${collection.name} Applications`);
       console.log('='.repeat(60));
 
-      // Find duplicates by email
+      // Find duplicates by fullName
       const duplicates = await collection.model.aggregate([
         {
           $group: {
@@ -50,7 +50,7 @@ async function findAndRemoveDuplicates() {
         continue;
       }
 
-      console.log(`\nFound ${duplicates.length} duplicate email(s):\n`);
+      console.log(`\nFound ${duplicates.length} duplicate fullName(s):\n`);
 
       for (const dup of duplicates) {
         totalDuplicatesFound += dup.count - 1;
@@ -58,7 +58,7 @@ async function findAndRemoveDuplicates() {
         // Get full documents to show details
         const docs = await collection.model.find({ _id: { $in: dup.ids } }).sort({ createdAt: 1 });
         
-        console.log(`Email: ${dup._id}`);
+        console.log(`Full Name: ${dup._id}`);
         console.log(`  Total submissions: ${dup.count}`);
         
         if (docs[0]) {

@@ -30,21 +30,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Mailgun setup
-const FormData = require("form-data");
-const Mailgun = require("mailgun.js");
+// ZeptoMail setup
+const https = require("https");
 
-let useMailgun = false;
-let mg;
-if (process.env.MAIL_GUN && process.env.MAILGUN_DOMAIN) {
-  const mailgun = new Mailgun(FormData);
-  mg = mailgun.client({
-    username: "api",
-    key: process.env.MAIL_GUN,
-    url: "https://api.eu.mailgun.net"
-  });
-  useMailgun = true;
-}
+const useZeptoMail = !!(process.env.ZEPTO_MAIL_TOKEN && process.env.ZEPTO_SENDER_DOMAIN);
 
 // Configure Nodemailer
 const transporter = nodemailer.createTransport({
@@ -66,23 +55,72 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Helper to send email using Mailgun or Nodemailer
-async function sendMail({ to, subject, html }) {
-  if (useMailgun) {
-    try {
-      const data = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
-        from: `Edo Youth Impact Forum 2025 <info@${process.env.MAILGUN_DOMAIN}>`,
-        to,
-        subject,
-        html,
+// Helper to send email via ZeptoMail API
+function sendViaZeptoMail({ to, subject, html }) {
+  const payload = JSON.stringify({
+    from: {
+      address: `info@${process.env.ZEPTO_SENDER_DOMAIN}`,
+      name: "Edo Youth Impact Forum",
+    },
+    to: [
+      {
+        email_address: {
+          address: to,
+          name: to,
+        },
+      },
+    ],
+    subject,
+    htmlbody: html,
+  });
+
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: process.env.ZEPTO_MAIL_HOST || "api.zeptomail.com",
+      port: 443,
+      path: "/v1.1/email",
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: process.env.ZEPTO_MAIL_TOKEN,
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
       });
-      return data;
-    } catch (error) {
-      throw error;
-    }
+      res.on("end", () => {
+        try {
+          const parsed = JSON.parse(data);
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(parsed);
+          } else {
+            reject(
+              new Error(`ZeptoMail error (${res.statusCode}): ${data}`)
+            );
+          }
+        } catch (e) {
+          reject(new Error(`ZeptoMail response parse error: ${data}`));
+        }
+      });
+    });
+
+    req.on("error", reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+// Helper to send email using ZeptoMail or Nodemailer fallback
+async function sendMail({ to, subject, html }) {
+  if (useZeptoMail) {
+    return sendViaZeptoMail({ to, subject, html });
   } else {
     return transporter.sendMail({
-      from: "Edo Youth Impact Forum 2025",
+      from: "Edo Youth Impact Forum",
       to,
       subject,
       html,
