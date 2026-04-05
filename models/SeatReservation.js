@@ -6,6 +6,6 @@ const SeatReservationSchema = new mongoose.Schema({
   email: { type: String, required: true },
   phone: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'seatreservations_2026' });
 
 module.exports = mongoose.model("SeatReservation", SeatReservationSchema);

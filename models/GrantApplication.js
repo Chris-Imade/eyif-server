@@ -11,6 +11,6 @@ const GrantApplicationSchema = new mongoose.Schema({
   fundUsage: { type: String, required: true },
   otherCategory: { type: String },
   createdAt: { type: Date, default: Date.now },
-});
+}, { collection: 'grantapplications_2026' });
 
 module.exports = mongoose.model("GrantApplication", GrantApplicationSchema);

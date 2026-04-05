@@ -290,7 +290,7 @@ app.post("/contact", async (req, res) => {
           <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
           <p>
             <a href="${process.env.WEBSITE_URL}" style="color: #4E31AA; text-decoration: none;">Visit our website</a> | 
-            <a href="mailto:${process.env.CONTACT_EMAIL}" style="color: #4E31AA; text-decoration: none;">Email us</a>
+            <a href="${process.env.WEBSITE_URL}/contact.html" style="color: #4E31AA; text-decoration: none;">Contact us</a>
           </p>
         </div>
       </div>
@@ -306,15 +306,7 @@ app.post("/contact", async (req, res) => {
       html: thanksMessage,
     });
 
-    // Send notification email to admin
-    const report = await sendMail({
-      to: process.env.CONTACT_EMAIL,
-      subject: "New Contact Form Submission - EYIF 2025",
-      html: contactEmailTemplate,
-    });
-
     console.log("Contact confirmation email sent:", info.id || info.messageId || "Success");
-    console.log("Contact notification email sent:", report.id || report.messageId || "Success");
     res
       .status(200)
       .send({ message: "Contact form submitted successfully", status: 200 });
@@ -417,7 +409,7 @@ app.post("/subscribe", async (req, res) => {
           <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
           <p>
             <a href="${process.env.WEBSITE_URL}" style="color: #4E31AA; text-decoration: none;">Visit our website</a> | 
-            <a href="mailto:${process.env.CONTACT_EMAIL}" style="color: #4E31AA; text-decoration: none;">Email us</a>
+            <a href="${process.env.WEBSITE_URL}/contact.html" style="color: #4E31AA; text-decoration: none;">Contact us</a>
           </p>
         </div>
       </div>
@@ -489,15 +481,7 @@ app.post("/subscribe", async (req, res) => {
       html: subscribeEmailTemplate,
     });
 
-    // Send notification email to admin
-    const report = await sendMail({
-      to: process.env.NEWSLETTER_EMAIL,
-      subject: "New Newsletter Subscription - EYIF 2025",
-      html: subscribeEmailReport,
-    });
-
     console.log("Subscription confirmation email sent:", info.id || info.messageId || "Success");
-    console.log("Subscription notification email sent:", report.id || report.messageId || "Success");
     res.status(200).send({ message: "Subscription successful", status: 200 });
   } catch (error) {
     console.error("Error sending subscription email:", error);
@@ -797,9 +781,9 @@ app.post("/grant-registration", async (req, res) => {
             <a href="${
               process.env.WEBSITE_URL
             }" style="color: #4E31AA; text-decoration: none;">Visit our website</a> | 
-            <a href="mailto:${
-              process.env.GRANT_EMAIL
-            }" style="color: #4E31AA; text-decoration: none;">Email us</a>
+            <a href="${
+              process.env.WEBSITE_URL
+            }/contact.html" style="color: #4E31AA; text-decoration: none;">Contact us</a>
           </p>
         </div>
       </div>
@@ -817,7 +801,6 @@ app.post("/grant-registration", async (req, res) => {
 
     // Send notification emails to admins
     const adminEmails = [
-      process.env.GRANT_EMAIL,
       "iguodalaefosa@gmail.com",
       "ebuka0064@gmail.com",
       "onovaeochuko@gmail.com",
