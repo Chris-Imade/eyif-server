@@ -8,6 +8,9 @@ const Contact = require("./models/Contact");
 const NewsletterSubscription = require("./models/NewsletterSubscription");
 const GrantApplication = require("./models/GrantApplication");
 const SeatReservation = require("./models/SeatReservation");
+const IdeaTrackApplication = require("./models/IdeaTrackApplication");
+const BuildTrackApplication = require("./models/BuildTrackApplication");
+const ScaleTrackApplication = require("./models/ScaleTrackApplication");
 const reportsService = require("./services/reportsService");
 
 dotenv.config();
@@ -955,6 +958,231 @@ app.post("/reserve-seat", async (req, res) => {
       status: 500,
       error: error.message,
     });
+  }
+});
+
+// EYIF 2026 Grant Program - Idea Track Application
+app.post("/apply/idea", async (req, res) => {
+  try {
+    const application = await IdeaTrackApplication.create(req.body);
+
+    // Send response immediately after saving to DB
+    res.status(200).send({ message: "Application submitted successfully", status: 200, applicationId: application._id });
+
+    // Send confirmation email to applicant (non-blocking)
+    const applicantTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head><style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background-color: #4E31AA; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px 30px; line-height: 1.6; }
+        .footer { background-color: #f4f4f4; text-align: center; padding: 15px; font-size: 14px; color: #666; }
+        .btn { display: inline-block; background-color: #4E31AA; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px; }
+      </style></head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Idea Track Application Received!</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${req.body.fullName}</strong>,</p>
+            <p>Thank you for submitting your Idea Track application for the EYIF 2026 Grant Program. We have received your submission.</p>
+            <p><strong>Business:</strong> ${req.body.businessName}</p>
+            <p>Our team will review all applications and shortlisted candidates will be contacted.</p>
+            <div style="text-align: center;"><a href="${process.env.WEBSITE_URL}" class="btn">Visit Our Website</a></div>
+          </div>
+          <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
+        </div>
+      </body></html>
+    `;
+
+    // Admin notification template
+    const adminTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head><style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4E31AA; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .footer { background-color: #4E31AA; padding: 15px; text-align: center; color: white; font-size: 14px; }
+        .info-item { margin-bottom: 10px; }
+        .info-label { font-weight: bold; }
+        .track-badge { display: inline-block; background-color: #FF6B35; color: white; padding: 5px 10px; border-radius: 20px; font-size: 14px; }
+      </style></head>
+      <body>
+        <div class="container">
+          <div class="header"><h1>New Idea Track Application</h1></div>
+          <div class="content">
+            <p><span class="track-badge">IDEA TRACK</span></p>
+            <div class="info-item"><span class="info-label">Name:</span> ${req.body.fullName}</div>
+            <div class="info-item"><span class="info-label">Email:</span> ${req.body.email}</div>
+            <div class="info-item"><span class="info-label">Phone:</span> ${req.body.phone}</div>
+            <div class="info-item"><span class="info-label">Business:</span> ${req.body.businessName}</div>
+            <div class="info-item"><span class="info-label">Industry:</span> ${req.body.industry}</div>
+            <div class="info-item"><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</div>
+          </div>
+          <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
+        </div>
+      </body></html>
+    `;
+
+    // Email sending (non-blocking, non-critical)
+    sendMail({ to: req.body.email, subject: "EYIF 2026 - Idea Track Application Received", html: applicantTemplate })
+      .catch(err => console.log("Email failed (non-critical):", err.message));
+  } catch (error) {
+    console.error("Error submitting idea track application:", error);
+    res.status(500).send({ message: "Error submitting application", status: 500, error: error.message });
+  }
+});
+
+// EYIF 2026 Grant Program - Build Track Application
+app.post("/apply/build", async (req, res) => {
+  try {
+    const application = await BuildTrackApplication.create(req.body);
+
+    // Send response immediately after saving to DB
+    res.status(200).send({ message: "Application submitted successfully", status: 200, applicationId: application._id });
+
+    const applicantTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head><style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background-color: #4E31AA; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px 30px; line-height: 1.6; }
+        .footer { background-color: #f4f4f4; text-align: center; padding: 15px; font-size: 14px; color: #666; }
+        .btn { display: inline-block; background-color: #4E31AA; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px; }
+      </style></head>
+      <body>
+        <div class="container">
+          <div class="header"><h1>Build Track Application Received!</h1></div>
+          <div class="content">
+            <p>Dear <strong>${req.body.fullName}</strong>,</p>
+            <p>Thank you for submitting your Build Track application for the EYIF 2026 Grant Program.</p>
+            <p><strong>Startup:</strong> ${req.body.startupName}</p>
+            <p>We have received your MVP details and will review your application.</p>
+            <div style="text-align: center;"><a href="${process.env.WEBSITE_URL}" class="btn">Visit Our Website</a></div>
+          </div>
+          <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
+        </div>
+      </body></html>
+    `;
+
+    const adminTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head><style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4E31AA; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .footer { background-color: #4E31AA; padding: 15px; text-align: center; color: white; font-size: 14px; }
+        .info-item { margin-bottom: 10px; }
+        .info-label { font-weight: bold; }
+        .track-badge { display: inline-block; background-color: #4ECDC4; color: white; padding: 5px 10px; border-radius: 20px; font-size: 14px; }
+      </style></head>
+      <body>
+        <div class="container">
+          <div class="header"><h1>New Build Track Application</h1></div>
+          <div class="content">
+            <p><span class="track-badge">BUILD TRACK</span></p>
+            <div class="info-item"><span class="info-label">Name:</span> ${req.body.fullName}</div>
+            <div class="info-item"><span class="info-label">Email:</span> ${req.body.email}</div>
+            <div class="info-item"><span class="info-label">Startup:</span> ${req.body.startupName}</div>
+            <div class="info-item"><span class="info-label">Industry:</span> ${req.body.industry}</div>
+            <div class="info-item"><span class="info-label">Current Users:</span> ${req.body.currentUsers}</div>
+            <div class="info-item"><span class="info-label">Team Size:</span> ${req.body.teamSize}</div>
+            <div class="info-item"><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</div>
+          </div>
+          <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
+        </div>
+      </body></html>
+    `;
+
+    // Email sending (non-blocking, non-critical)
+    sendMail({ to: req.body.email, subject: "EYIF 2026 - Build Track Application Received", html: applicantTemplate })
+      .catch(err => console.log("Email failed (non-critical):", err.message));
+  } catch (error) {
+    console.error("Error submitting build track application:", error);
+    res.status(500).send({ message: "Error submitting application", status: 500, error: error.message });
+  }
+});
+
+// EYIF 2026 Grant Program - Scale Track Application
+app.post("/apply/scale", async (req, res) => {
+  try {
+    const application = await ScaleTrackApplication.create(req.body);
+
+    // Send response immediately after saving to DB
+    res.status(200).send({ message: "Application submitted successfully", status: 200, applicationId: application._id });
+
+    const applicantTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head><style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background-color: #4E31AA; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px 30px; line-height: 1.6; }
+        .footer { background-color: #f4f4f4; text-align: center; padding: 15px; font-size: 14px; color: #666; }
+        .btn { display: inline-block; background-color: #4E31AA; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px; }
+      </style></head>
+      <body>
+        <div class="container">
+          <div class="header"><h1>Scale Track Application Received!</h1></div>
+          <div class="content">
+            <p>Dear <strong>${req.body.fullName}</strong>,</p>
+            <p>Thank you for submitting your Scale Track application for the EYIF 2026 Grant Program.</p>
+            <p><strong>Company:</strong> ${req.body.companyName}</p>
+            <p>We are excited to learn about your growth-stage company and will review your application.</p>
+            <div style="text-align: center;"><a href="${process.env.WEBSITE_URL}" class="btn">Visit Our Website</a></div>
+          </div>
+          <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
+        </div>
+      </body></html>
+    `;
+
+    const adminTemplate = `
+      <!DOCTYPE html>
+      <html>
+      <head><style>
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4E31AA; padding: 20px; text-align: center; color: white; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .footer { background-color: #4E31AA; padding: 15px; text-align: center; color: white; font-size: 14px; }
+        .info-item { margin-bottom: 10px; }
+        .info-label { font-weight: bold; }
+        .track-badge { display: inline-block; background-color: #9B59B6; color: white; padding: 5px 10px; border-radius: 20px; font-size: 14px; }
+      </style></head>
+      <body>
+        <div class="container">
+          <div class="header"><h1>New Scale Track Application</h1></div>
+          <div class="content">
+            <p><span class="track-badge">SCALE TRACK</span></p>
+            <div class="info-item"><span class="info-label">Name:</span> ${req.body.fullName}</div>
+            <div class="info-item"><span class="info-label">Email:</span> ${req.body.email}</div>
+            <div class="info-item"><span class="info-label">Company:</span> ${req.body.companyName}</div>
+            <div class="info-item"><span class="info-label">Website:</span> ${req.body.website}</div>
+            <div class="info-item"><span class="info-label">Annual Revenue:</span> ₦${req.body.annualRevenue?.toLocaleString()}</div>
+            <div class="info-item"><span class="info-label">Team Size:</span> ${req.body.teamSize}</div>
+            <div class="info-item"><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</div>
+          </div>
+          <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
+        </div>
+      </body></html>
+    `;
+
+    // Email sending (non-blocking, non-critical)
+    sendMail({ to: req.body.email, subject: "EYIF 2026 - Scale Track Application Received", html: applicantTemplate })
+      .catch(err => console.log("Email failed (non-critical):", err.message));
+  } catch (error) {
+    console.error("Error submitting scale track application:", error);
+    res.status(500).send({ message: "Error submitting application", status: 500, error: error.message });
   }
 });
 
