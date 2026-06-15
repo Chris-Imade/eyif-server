@@ -128,6 +128,38 @@ async function sendMail({ to, subject, html }) {
   }
 }
 
+const EDO_CONNECTION_ALIASES = {
+  resident: "Resident",
+  indigene: "Indigene",
+  business_based: "Business Based",
+  "business based": "Business Based",
+  "business based locally": "Business Based Locally",
+};
+
+function normalizeEdoConnectionValue(value) {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  return EDO_CONNECTION_ALIASES[trimmed.toLowerCase()] || trimmed;
+}
+
+function normalizeEdoConnectionsPayload(body) {
+  const rawValue = body.edoConnections || body.edoConnection || body.edo_connection;
+  const rawConnections = Array.isArray(rawValue) ? rawValue : [rawValue];
+
+  const edoConnections = [...new Set(
+    rawConnections
+      .flatMap((value) => typeof value === "string" ? value.split(",") : [])
+      .map(normalizeEdoConnectionValue)
+      .filter(Boolean)
+  )];
+
+  return {
+    ...body,
+    edoConnection: edoConnections[0] || normalizeEdoConnectionValue(body.edoConnection),
+    edoConnections,
+  };
+}
+
 // Contact Form Route
 app.post("/contact", async (req, res) => {
   const { firstName, lastName, email, phone, message } = req.body;
@@ -985,7 +1017,8 @@ app.post("/reserve-seat", async (req, res) => {
 // EYIF 2026 Grant Program - Idea Track Application
 app.post("/apply/idea", async (req, res) => {
   try {
-    const application = await IdeaTrackApplication.create(req.body);
+    const applicationData = normalizeEdoConnectionsPayload(req.body);
+    const application = await IdeaTrackApplication.create(applicationData);
 
     // Send response immediately after saving to DB
     res.status(200).send({ message: "Application submitted successfully", status: 200, applicationId: application._id });
@@ -1008,9 +1041,9 @@ app.post("/apply/idea", async (req, res) => {
             <h1>Idea Track Application Received!</h1>
           </div>
           <div class="content">
-            <p>Dear <strong>${req.body.fullName}</strong>,</p>
+            <p>Dear <strong>${applicationData.fullName}</strong>,</p>
             <p>Thank you for submitting your Idea Track application for the EYIF 2026 Grant Program. We have received your submission.</p>
-            <p><strong>Business:</strong> ${req.body.businessName}</p>
+            <p><strong>Business:</strong> ${applicationData.businessName}</p>
             <p>Our team will review all applications and shortlisted candidates will be contacted.</p>
             <div style="text-align: center;"><a href="${process.env.WEBSITE_URL}" class="btn">Visit Our Website</a></div>
           </div>
@@ -1038,11 +1071,11 @@ app.post("/apply/idea", async (req, res) => {
           <div class="header"><h1>New Idea Track Application</h1></div>
           <div class="content">
             <p><span class="track-badge">IDEA TRACK</span></p>
-            <div class="info-item"><span class="info-label">Name:</span> ${req.body.fullName}</div>
-            <div class="info-item"><span class="info-label">Email:</span> ${req.body.email}</div>
-            <div class="info-item"><span class="info-label">Phone:</span> ${req.body.phone}</div>
-            <div class="info-item"><span class="info-label">Business:</span> ${req.body.businessName}</div>
-            <div class="info-item"><span class="info-label">Industry:</span> ${req.body.industry}</div>
+            <div class="info-item"><span class="info-label">Name:</span> ${applicationData.fullName}</div>
+            <div class="info-item"><span class="info-label">Email:</span> ${applicationData.email}</div>
+            <div class="info-item"><span class="info-label">Phone:</span> ${applicationData.phone}</div>
+            <div class="info-item"><span class="info-label">Business:</span> ${applicationData.businessName}</div>
+            <div class="info-item"><span class="info-label">Industry:</span> ${applicationData.industry}</div>
             <div class="info-item"><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</div>
           </div>
           <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
@@ -1051,7 +1084,7 @@ app.post("/apply/idea", async (req, res) => {
     `;
 
     // Email sending (non-blocking, non-critical)
-    sendMail({ to: req.body.email, subject: "EYIF 2026 - Idea Track Application Received", html: applicantTemplate })
+    sendMail({ to: applicationData.email, subject: "EYIF 2026 - Idea Track Application Received", html: applicantTemplate })
       .catch(err => console.log("Email failed (non-critical):", err.message));
   } catch (error) {
     console.error("Error submitting idea track application:", error);
@@ -1062,7 +1095,8 @@ app.post("/apply/idea", async (req, res) => {
 // EYIF 2026 Grant Program - Build Track Application
 app.post("/apply/build", async (req, res) => {
   try {
-    const application = await BuildTrackApplication.create(req.body);
+    const applicationData = normalizeEdoConnectionsPayload(req.body);
+    const application = await BuildTrackApplication.create(applicationData);
 
     // Send response immediately after saving to DB
     res.status(200).send({ message: "Application submitted successfully", status: 200, applicationId: application._id });
@@ -1082,9 +1116,9 @@ app.post("/apply/build", async (req, res) => {
         <div class="container">
           <div class="header"><h1>Build Track Application Received!</h1></div>
           <div class="content">
-            <p>Dear <strong>${req.body.fullName}</strong>,</p>
+            <p>Dear <strong>${applicationData.fullName}</strong>,</p>
             <p>Thank you for submitting your Build Track application for the EYIF 2026 Grant Program.</p>
-            <p><strong>Startup:</strong> ${req.body.startupName}</p>
+            <p><strong>Startup:</strong> ${applicationData.startupName}</p>
             <p>We have received your MVP details and will review your application.</p>
             <div style="text-align: center;"><a href="${process.env.WEBSITE_URL}" class="btn">Visit Our Website</a></div>
           </div>
@@ -1111,12 +1145,12 @@ app.post("/apply/build", async (req, res) => {
           <div class="header"><h1>New Build Track Application</h1></div>
           <div class="content">
             <p><span class="track-badge">BUILD TRACK</span></p>
-            <div class="info-item"><span class="info-label">Name:</span> ${req.body.fullName}</div>
-            <div class="info-item"><span class="info-label">Email:</span> ${req.body.email}</div>
-            <div class="info-item"><span class="info-label">Startup:</span> ${req.body.startupName}</div>
-            <div class="info-item"><span class="info-label">Industry:</span> ${req.body.industry}</div>
-            <div class="info-item"><span class="info-label">Current Users:</span> ${req.body.currentUsers}</div>
-            <div class="info-item"><span class="info-label">Team Size:</span> ${req.body.teamSize}</div>
+            <div class="info-item"><span class="info-label">Name:</span> ${applicationData.fullName}</div>
+            <div class="info-item"><span class="info-label">Email:</span> ${applicationData.email}</div>
+            <div class="info-item"><span class="info-label">Startup:</span> ${applicationData.startupName}</div>
+            <div class="info-item"><span class="info-label">Industry:</span> ${applicationData.industry}</div>
+            <div class="info-item"><span class="info-label">Current Users:</span> ${applicationData.currentUsers}</div>
+            <div class="info-item"><span class="info-label">Team Size:</span> ${applicationData.teamSize}</div>
             <div class="info-item"><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</div>
           </div>
           <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
@@ -1125,7 +1159,7 @@ app.post("/apply/build", async (req, res) => {
     `;
 
     // Email sending (non-blocking, non-critical)
-    sendMail({ to: req.body.email, subject: "EYIF 2026 - Build Track Application Received", html: applicantTemplate })
+    sendMail({ to: applicationData.email, subject: "EYIF 2026 - Build Track Application Received", html: applicantTemplate })
       .catch(err => console.log("Email failed (non-critical):", err.message));
   } catch (error) {
     console.error("Error submitting build track application:", error);
@@ -1136,7 +1170,8 @@ app.post("/apply/build", async (req, res) => {
 // EYIF 2026 Grant Program - Scale Track Application
 app.post("/apply/scale", async (req, res) => {
   try {
-    const application = await ScaleTrackApplication.create(req.body);
+    const applicationData = normalizeEdoConnectionsPayload(req.body);
+    const application = await ScaleTrackApplication.create(applicationData);
 
     // Send response immediately after saving to DB
     res.status(200).send({ message: "Application submitted successfully", status: 200, applicationId: application._id });
@@ -1156,9 +1191,9 @@ app.post("/apply/scale", async (req, res) => {
         <div class="container">
           <div class="header"><h1>Scale Track Application Received!</h1></div>
           <div class="content">
-            <p>Dear <strong>${req.body.fullName}</strong>,</p>
+            <p>Dear <strong>${applicationData.fullName}</strong>,</p>
             <p>Thank you for submitting your Scale Track application for the EYIF 2026 Grant Program.</p>
-            <p><strong>Company:</strong> ${req.body.companyName}</p>
+            <p><strong>Company:</strong> ${applicationData.companyName}</p>
             <p>We are excited to learn about your growth-stage company and will review your application.</p>
             <div style="text-align: center;"><a href="${process.env.WEBSITE_URL}" class="btn">Visit Our Website</a></div>
           </div>
@@ -1185,12 +1220,12 @@ app.post("/apply/scale", async (req, res) => {
           <div class="header"><h1>New Scale Track Application</h1></div>
           <div class="content">
             <p><span class="track-badge">SCALE TRACK</span></p>
-            <div class="info-item"><span class="info-label">Name:</span> ${req.body.fullName}</div>
-            <div class="info-item"><span class="info-label">Email:</span> ${req.body.email}</div>
-            <div class="info-item"><span class="info-label">Company:</span> ${req.body.companyName}</div>
-            <div class="info-item"><span class="info-label">Website:</span> ${req.body.website}</div>
-            <div class="info-item"><span class="info-label">Annual Revenue:</span> ₦${req.body.annualRevenue?.toLocaleString()}</div>
-            <div class="info-item"><span class="info-label">Team Size:</span> ${req.body.teamSize}</div>
+            <div class="info-item"><span class="info-label">Name:</span> ${applicationData.fullName}</div>
+            <div class="info-item"><span class="info-label">Email:</span> ${applicationData.email}</div>
+            <div class="info-item"><span class="info-label">Company:</span> ${applicationData.companyName}</div>
+            <div class="info-item"><span class="info-label">Website:</span> ${applicationData.website}</div>
+            <div class="info-item"><span class="info-label">Annual Revenue:</span> ₦${applicationData.annualRevenue?.toLocaleString()}</div>
+            <div class="info-item"><span class="info-label">Team Size:</span> ${applicationData.teamSize}</div>
             <div class="info-item"><span class="info-label">Submitted:</span> ${new Date().toLocaleString()}</div>
           </div>
           <div class="footer"><p>&copy; 2026 Edo Youth Impact Forum. All rights reserved.</p></div>
@@ -1199,7 +1234,7 @@ app.post("/apply/scale", async (req, res) => {
     `;
 
     // Email sending (non-blocking, non-critical)
-    sendMail({ to: req.body.email, subject: "EYIF 2026 - Scale Track Application Received", html: applicantTemplate })
+    sendMail({ to: applicationData.email, subject: "EYIF 2026 - Scale Track Application Received", html: applicantTemplate })
       .catch(err => console.log("Email failed (non-critical):", err.message));
   } catch (error) {
     console.error("Error submitting scale track application:", error);

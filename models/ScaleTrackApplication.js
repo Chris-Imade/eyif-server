@@ -1,12 +1,15 @@
 const mongoose = require("mongoose");
 
+const EDO_CONNECTION_OPTIONS = ["Resident", "Indigene", "Business Based", "Business Based Locally"];
+
 const ScaleTrackSchema = new mongoose.Schema({
   // Personal Information
   fullName: { type: String, required: true },
   email: { type: String, required: true },
   phone: { type: String, required: true },
   age: { type: Number, required: true, min: 18, max: 35 },
-  edoConnection: { type: String, required: true, enum: ["Resident", "Indigene", "Business Based"] },
+  edoConnection: { type: String, required: true, enum: EDO_CONNECTION_OPTIONS },
+  edoConnections: [{ type: String, enum: EDO_CONNECTION_OPTIONS }],
 
   // Company Information
   companyName: { type: String, required: true },
