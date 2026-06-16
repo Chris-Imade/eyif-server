@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f6f8;
+      color: #172033;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    .shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: #263647;
+      color: #fff;
+      border-bottom: 4px solid #22a06b;
+    }
+
+    .topbar-inner {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2rem);
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: #c8d2dc;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: #e6edf3;
+      white-space: nowrap;
+      font-size: 0.9rem;
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0 48px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric {
+      background: #fff;
+      border: 1px solid #dde4eb;
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 112px;
+    }
+
+    .metric span {
+      display: block;
+      color: #687789;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 8px;
+      color: #263647;
+      font-size: 1.75rem;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #dde4eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 18px;
+      background: #fbfcfd;
+      border-bottom: 1px solid #dde4eb;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title h2 {
+      margin: 0;
+      color: #263647;
+      font-size: 1.18rem;
+    }
+
+    .panel-title p {
+      margin: 4px 0 0;
+      color: #687789;
+      font-size: 0.92rem;
+    }
+
+    .collection-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border-radius: 999px;
+      padding: 0 10px;
+      border: 1px solid #d6dee7;
+      background: #fff;
+      color: #425064;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .pill-success {
+      border-color: #b7e4cc;
+      background: #e8f7ef;
+      color: #146b45;
+    }
+
+    .pill-lock {
+      border-color: #cfd8e3;
+      background: #eef2f6;
+      color: #263647;
+    }
+
+    .filters {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #536173;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    select,
+    input[type="email"] {
+      height: 40px;
+      min-width: 220px;
+      border: 1px solid #bfccd8;
+      border-radius: 6px;
+      padding: 0 10px;
+      font: inherit;
+      color: #172033;
+      background: #fff;
+    }
+
+    .checkline {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #425064;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    button,
+    .button {
+      height: 40px;
+      border: 0;
+      border-radius: 6px;
+      padding: 0 13px;
+      background: #2f6fed;
+      color: #fff;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    button:hover,
+    .button:hover {
+      background: #1f5bd2;
+    }
+
+    .button-muted {
+      background: #eef2f6;
+      color: #263647;
+      border: 1px solid #d6dee7;
+    }
+
+    .button-muted:hover {
+      background: #e3eaf1;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid #e7edf3;
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: #fff;
+      color: #536173;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      color: #263647;
+      max-width: 260px;
+    }
+
+    tbody tr.record-row {
+      cursor: pointer;
+      transition: background 0.16s ease;
+    }
+
+    tbody tr.record-row:hover,
+    tbody tr.record-row:focus {
+      background: #f4f8fb;
+      outline: none;
+    }
+
+    tbody tr.record-row:focus {
+      box-shadow: inset 4px 0 0 #22a06b;
+    }
+
+    .cell-text {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      min-width: 174px;
+    }
+
+    .empty {
+      padding: 44px 18px;
+      text-align: center;
+      color: #687789;
+    }
+
+    .pager {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: #fbfcfd;
+    }
+
+    .pager-info {
+      color: #687789;
+      font-size: 0.9rem;
+    }
+
+    .pager-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .page-link {
+      min-width: 38px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid #d6dee7;
+      color: #263647;
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 0 10px;
+    }
+
+    .page-link.active {
+      border-color: #22a06b;
+      background: #e8f7ef;
+      color: #146b45;
+    }
+
+    .page-link.disabled {
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    button.page-link {
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.88rem;
+    }
+
+    .page-jump {
+      display: none;
+      align-items: center;
+    }
+
+    .page-jump.open {
+      display: inline-flex;
+    }
+
+    .page-jump input {
+      width: 72px;
+      height: 36px;
+      border: 1px solid #22a06b;
+      border-radius: 6px;
+      padding: 0 9px;
+      color: #172033;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(23, 32, 51, 0.58);
+      padding: 18px;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(440px, 100%);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+      overflow: hidden;
+    }
+
+    .modal-head,
+    .modal-body,
+    .modal-actions {
+      padding: 18px;
+    }
+
+    .modal-head {
+      border-bottom: 1px solid #e7edf3;
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-size: 1.12rem;
+    }
+
+    .modal-body p {
+      margin: 0 0 14px;
+      color: #687789;
+      font-size: 0.92rem;
+    }
+
+    .modal-body input {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #fbfcfd;
+    }
+
+    .notice {
+      margin-top: 12px;
+      min-height: 22px;
+      color: #146b45;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .notice.error {
+      color: #b42318;
+    }
+
+    @media (max-width: 820px) {
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filters,
+      .filters label,
+      .filters select,
+      .filters button {
+        width: 100%;
+      }
+
+      .checkline {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .pager {
+        align-items: stretch;
+      }
+
+      .pager-links {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <% const selectedAnalytics = analytics[selectedSchema] || { total: 0, unique: 0, duplicates: 0 }; %>
+  <% function pageUrl(pageNumber) {
+    const params = new URLSearchParams();
+    params.set("schema", selectedSchema);
+    params.set("page", pageNumber);
+    params.set("limit", pagination.limit);
+    if (includeDuplicates) params.set("includeDuplicates", "true");
+    return `/report?${params.toString()}`;
+  } %>
+  <% const currentReportPath = pageUrl(pagination.page); %>
+  <% function detailUrl(recordId) {
+    const params = new URLSearchParams();
+    params.set("returnTo", currentReportPath);
+    return `/report/${selectedSchema}/${recordId}?${params.toString()}`;
+  } %>
+
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <h1>EYIF Reports Dashboard</h1>
+          <p class="subtitle">Read-only admin reporting for 2026 database collections.</p>
+        </div>
+        <div class="badge-group">
+          <div class="badge">Read only</div>
+          <div class="badge">Duplicates filtered by email</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="metrics" aria-label="Database overview">
+        <div class="metric">
+          <span>Total Records</span>
+          <strong><%= overview.totalRecords.toLocaleString() %></strong>
+        </div>
+        <div class="metric">
+          <span>Unique Records</span>
+          <strong><%= overview.totalUniqueRecords.toLocaleString() %></strong>
+        </div>
+        <div class="metric">
+          <span>Duplicates</span>
+          <strong><%= overview.totalDuplicates.toLocaleString() %></strong>
+        </div>
+        <div class="metric">
+          <span>Collections</span>
+          <strong><%= overview.totalSchemas.toLocaleString() %></strong>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h2><%= selectedSchemaInfo.displayName %></h2>
+            <p>
+              <%= selectedSchemaInfo.description %>.
+              Showing <%= includeDuplicates ? "all records" : "unique records only" %>.
+              <%= selectedAnalytics.duplicates.toLocaleString() %> duplicates found.
+            </p>
+            <div class="collection-meta">
+              <span class="pill pill-success"><%= selectedSchemaInfo.collectionName %></span>
+              <span class="pill pill-lock">View, CSV download, and email share only</span>
+            </div>
+          </div>
+
+          <form class="filters" method="GET" action="/report">
+            <label>
+              Collection
+              <select name="schema">
+                <% schemas.forEach((schema) => { %>
+                  <option value="<%= schema.name %>" <%= schema.name === selectedSchema ? "selected" : "" %>>
+                    <%= schema.displayName %>
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+            <label>
+              Per page
+              <select name="limit">
+                <% [10, 20, 30, 50].forEach((size) => { %>
+                  <option value="<%= size %>" <%= size === pagination.limit ? "selected" : "" %>><%= size %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label class="checkline">
+              <input type="checkbox" name="includeDuplicates" value="true" <%= includeDuplicates ? "checked" : "" %>>
+              Include duplicates
+            </label>
+            <button type="submit">Apply</button>
+          </form>
+        </div>
+
+        <% if (!records.length) { %>
+          <div class="empty">No records are available for this collection.</div>
+        <% } else { %>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <% selectedSchemaInfo.fields.forEach((field) => { %>
+                    <th><%= reportsService.formatFieldName(field) %></th>
+                  <% }) %>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% records.forEach((record) => { %>
+                  <tr class="record-row" tabindex="0" data-href="<%= detailUrl(record._id) %>" onclick="openRecordDetail(this)" onkeydown="openRecordDetailFromKeyboard(event, this)">
+                    <% selectedSchemaInfo.fields.forEach((field) => { %>
+                      <td>
+                        <span class="cell-text"><%= reportsService.formatValue(record[field]) || "-" %></span>
+                      </td>
+                    <% }) %>
+                    <td>
+                      <div class="actions">
+                        <a class="button button-muted" href="/report/<%= selectedSchema %>/<%= record._id %>.csv" onclick="event.stopPropagation()">CSV</a>
+                        <button type="button" data-record-id="<%= record._id %>" data-schema-name="<%= selectedSchema %>" onclick="event.stopPropagation(); openEmailModal(this)">Email</button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+
+        <div class="pager">
+          <div class="pager-info">
+            Page <%= pagination.page %> of <%= pagination.totalPages %>.
+            <%= pagination.totalRecords.toLocaleString() %> record<%= pagination.totalRecords === 1 ? "" : "s" %> in this view.
+          </div>
+          <nav class="pager-links" aria-label="Pagination">
+            <a class="page-link <%= pagination.hasPrevPage ? "" : "disabled" %>" href="<%= pageUrl(pagination.page - 1) %>">Prev</a>
+            <% const startPage = Math.max(1, pagination.page - 2); %>
+            <% const endPage = Math.min(pagination.totalPages, pagination.page + 2); %>
+            <% for (let pageNumber = startPage; pageNumber <= endPage; pageNumber += 1) { %>
+              <% if (pageNumber === pagination.page) { %>
+                <button class="page-link active" type="button" id="currentPageButton" onclick="showPageJump()"><%= pageNumber %></button>
+                <form class="page-jump" id="pageJumpForm" method="GET" action="/report">
+                  <input type="hidden" name="schema" value="<%= selectedSchema %>">
+                  <input type="hidden" name="limit" value="<%= pagination.limit %>">
+                  <% if (includeDuplicates) { %>
+                    <input type="hidden" name="includeDuplicates" value="true">
+                  <% } %>
+                  <input id="pageJumpInput" type="number" name="page" min="1" max="<%= pagination.totalPages %>" value="<%= pagination.page %>" aria-label="Go to page">
+                </form>
+              <% } else { %>
+                <a class="page-link" href="<%= pageUrl(pageNumber) %>"><%= pageNumber %></a>
+              <% } %>
+            <% } %>
+            <a class="page-link <%= pagination.hasNextPage ? "" : "disabled" %>" href="<%= pageUrl(pagination.page + 1) %>">Next</a>
+          </nav>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="emailModal" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+    <form class="modal" id="emailForm">
+      <div class="modal-head">
+        <h3 id="emailModalTitle">Share Record By Email</h3>
+      </div>
+      <div class="modal-body">
+        <p>Enter the destination email address for this report record.</p>
+        <input type="hidden" id="schemaName" name="schemaName">
+        <input type="hidden" id="recordId" name="recordId">
+        <label>
+          Destination email
+          <input type="email" id="destinationEmail" name="destinationEmail" required placeholder="name@example.com">
+        </label>
+        <div class="notice" id="emailNotice"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="button-muted" type="button" onclick="closeEmailModal()">Cancel</button>
+        <button type="submit" id="sendButton">Send</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const modal = document.getElementById("emailModal");
+    const emailForm = document.getElementById("emailForm");
+    const emailNotice = document.getElementById("emailNotice");
+    const sendButton = document.getElementById("sendButton");
+    const currentPageButton = document.getElementById("currentPageButton");
+    const pageJumpForm = document.getElementById("pageJumpForm");
+    const pageJumpInput = document.getElementById("pageJumpInput");
+
+    function openRecordDetail(row) {
+      if (row.dataset.href) {
+        window.location.href = row.dataset.href;
+      }
+    }
+
+    function openRecordDetailFromKeyboard(event, row) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openRecordDetail(row);
+      }
+    }
+
+    function showPageJump() {
+      if (!pageJumpForm || !pageJumpInput || !currentPageButton) return;
+      currentPageButton.style.display = "none";
+      pageJumpForm.classList.add("open");
+      pageJumpInput.focus();
+      pageJumpInput.select();
+    }
+
+    if (pageJumpInput && pageJumpForm && currentPageButton) {
+      pageJumpInput.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          pageJumpForm.classList.remove("open");
+          currentPageButton.style.display = "";
+          currentPageButton.focus();
+        }
+      });
+
+      pageJumpInput.addEventListener("blur", () => {
+        if (document.activeElement !== pageJumpInput) {
+          pageJumpForm.classList.remove("open");
+          currentPageButton.style.display = "";
+        }
+      });
+    }
+
+    function openEmailModal(button) {
+      document.getElementById("schemaName").value = button.dataset.schemaName;
+      document.getElementById("recordId").value = button.dataset.recordId;
+      document.getElementById("destinationEmail").value = "";
+      emailNotice.textContent = "";
+      emailNotice.classList.remove("error");
+      modal.classList.add("open");
+      setTimeout(() => document.getElementById("destinationEmail").focus(), 50);
+    }
+
+    function closeEmailModal() {
+      modal.classList.remove("open");
+    }
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeEmailModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeEmailModal();
+    });
+
+    emailForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      emailNotice.textContent = "Sending...";
+      emailNotice.classList.remove("error");
+      sendButton.disabled = true;
+
+      try {
+        const payload = Object.fromEntries(new FormData(emailForm).entries());
+        const response = await fetch("/report/share-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || "Failed to send report.");
+        }
+
+        emailNotice.textContent = result.message || "Report sent successfully.";
+        setTimeout(closeEmailModal, 900);
+      } catch (error) {
+        emailNotice.textContent = error.message;
+        emailNotice.classList.add("error");
+      } finally {
+        sendButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -17,6 +17,9 @@ dotenv.config();
 
 const app = express();
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 // Middleware
 app.use(cors({ origin: "*" }));
 app.use(express.urlencoded({ extended: true }));
@@ -1239,6 +1242,125 @@ app.post("/apply/scale", async (req, res) => {
   } catch (error) {
     console.error("Error submitting scale track application:", error);
     res.status(500).send({ message: "Error submitting application", status: 500, error: error.message });
+  }
+});
+
+// Report Dashboard Route
+app.get("/report", async (req, res, next) => {
+  try {
+    const schemas = reportsService.getSchemaNames().map((name) => ({
+      name,
+      ...reportsService.getSchemaInfo(name),
+    }));
+    const requestedSchema = req.query.schema;
+    const selectedSchema = schemas.some((schema) => schema.name === requestedSchema)
+      ? requestedSchema
+      : schemas[0].name;
+    const page = Number.parseInt(req.query.page, 10) || 1;
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 10, 1), 50);
+    const includeDuplicates = req.query.includeDuplicates === "true";
+
+    const [overview, analytics, pageData] = await Promise.all([
+      reportsService.getDatabaseOverview(),
+      reportsService.getAllAnalytics(),
+      reportsService.getPaginatedSchemaData(selectedSchema, {
+        page,
+        limit,
+        includeDuplicates,
+      }),
+    ]);
+
+    res.render("report", {
+      title: "EYIF Reports Dashboard",
+      schemas,
+      selectedSchema,
+      selectedSchemaInfo: reportsService.getSchemaInfo(selectedSchema),
+      overview,
+      analytics,
+      records: pageData.records,
+      pagination: pageData.pagination,
+      includeDuplicates,
+      query: req.query,
+      reportsService,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/report/:schemaName/:recordId.csv", async (req, res) => {
+  try {
+    const { schemaName, recordId } = req.params;
+    const record = await reportsService.getRecord(schemaName, recordId);
+    const csv = reportsService.recordToCSV(record, schemaName);
+    const filename = `${schemaName}_${recordId}.csv`;
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(csv);
+  } catch (error) {
+    console.error("Error downloading report record CSV:", error);
+    res.status(404).send(error.message);
+  }
+});
+
+app.get("/report/:schemaName/:recordId", async (req, res, next) => {
+  try {
+    const { schemaName, recordId } = req.params;
+    const schemas = reportsService.getSchemaNames().map((name) => ({
+      name,
+      ...reportsService.getSchemaInfo(name),
+    }));
+    const record = await reportsService.getRecord(schemaName, recordId);
+    const schemaInfo = reportsService.getSchemaInfo(schemaName);
+    const requestedReturnTo = typeof req.query.returnTo === "string" ? req.query.returnTo : "";
+    const returnTo = requestedReturnTo.startsWith("/report") && !requestedReturnTo.startsWith("//")
+      ? requestedReturnTo
+      : `/report?schema=${encodeURIComponent(schemaName)}`;
+
+    res.render("report-detail", {
+      title: `${schemaInfo.displayName} Record`,
+      schemas,
+      selectedSchema: schemaName,
+      selectedSchemaInfo: schemaInfo,
+      record,
+      details: reportsService.getRecordDetails(record, schemaName),
+      returnTo,
+      reportsService,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/report/share-email", async (req, res) => {
+  try {
+    const { schemaName, recordId, destinationEmail } = req.body;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!schemaName || !recordId || !emailPattern.test(destinationEmail || "")) {
+      return res.status(400).json({
+        message: "A valid destination email and record are required.",
+      });
+    }
+
+    const record = await reportsService.getRecord(schemaName, recordId);
+    const schemaInfo = reportsService.getSchemaInfo(schemaName);
+    const html = reportsService.recordToHtml(record, schemaName);
+
+    await sendMail({
+      to: destinationEmail,
+      subject: `${schemaInfo.displayName} Report`,
+      html,
+    });
+
+    res.json({ message: "Report sent successfully." });
+  } catch (error) {
+    console.error("Error sharing report by email:", error);
+    res.status(500).json({
+      message: "Failed to send report email.",
+      error: error.message,
+    });
   }
 });
 

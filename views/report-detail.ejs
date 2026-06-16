@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f6f8;
+      color: #172033;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    .topbar {
+      background: #263647;
+      color: #fff;
+      border-bottom: 4px solid #22a06b;
+    }
+
+    .topbar-inner,
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar-inner {
+      padding: 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .crumb {
+      color: #dce6ef;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .crumb:hover {
+      color: #fff;
+    }
+
+    h1 {
+      margin: 8px 0 0;
+      color: #fff;
+      font-size: clamp(1.45rem, 3vw, 2.05rem);
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: #c8d2dc;
+      font-size: 0.95rem;
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 0 12px;
+      color: #e6edf3;
+      white-space: nowrap;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    main {
+      padding: 26px 0 48px;
+    }
+
+    .record-header {
+      background: #fff;
+      border: 1px solid #dde4eb;
+      border-radius: 8px;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .record-title h2 {
+      margin: 0;
+      color: #263647;
+      font-size: 1.2rem;
+    }
+
+    .record-title p {
+      margin: 6px 0 0;
+      color: #687789;
+      font-size: 0.92rem;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    button,
+    .button {
+      height: 40px;
+      border: 0;
+      border-radius: 6px;
+      padding: 0 13px;
+      background: #2f6fed;
+      color: #fff;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    button:hover,
+    .button:hover {
+      background: #1f5bd2;
+    }
+
+    .button-muted {
+      background: #eef2f6;
+      color: #263647;
+      border: 1px solid #d6dee7;
+    }
+
+    .button-muted:hover {
+      background: #e3eaf1;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .meta-card {
+      background: #fff;
+      border: 1px solid #dde4eb;
+      border-radius: 8px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .meta-card span {
+      display: block;
+      color: #687789;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .meta-card strong {
+      display: block;
+      margin-top: 6px;
+      color: #263647;
+      font-size: 0.95rem;
+      overflow-wrap: anywhere;
+    }
+
+    .details-panel {
+      background: #fff;
+      border: 1px solid #dde4eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .details-head {
+      padding: 18px;
+      background: #fbfcfd;
+      border-bottom: 1px solid #dde4eb;
+    }
+
+    .details-head h2 {
+      margin: 0;
+      color: #263647;
+      font-size: 1.14rem;
+    }
+
+    .details-head p {
+      margin: 4px 0 0;
+      color: #687789;
+      font-size: 0.92rem;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+    }
+
+    .field {
+      padding: 16px 18px;
+      border-bottom: 1px solid #e7edf3;
+      min-width: 0;
+    }
+
+    .field:nth-child(odd) {
+      border-right: 1px solid #e7edf3;
+    }
+
+    .field.long {
+      grid-column: 1 / -1;
+      border-right: 0;
+    }
+
+    .field-label {
+      margin: 0 0 7px;
+      color: #536173;
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .field-value {
+      margin: 0;
+      color: #172033;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .field-value.empty {
+      color: #8a98a8;
+      font-style: italic;
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(23, 32, 51, 0.58);
+      padding: 18px;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(440px, 100%);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+      overflow: hidden;
+    }
+
+    .modal-head,
+    .modal-body,
+    .modal-actions {
+      padding: 18px;
+    }
+
+    .modal-head {
+      border-bottom: 1px solid #e7edf3;
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      color: #263647;
+      font-size: 1.12rem;
+    }
+
+    .modal-body p {
+      margin: 0 0 14px;
+      color: #687789;
+      font-size: 0.92rem;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #536173;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      height: 40px;
+      min-width: 0;
+      border: 1px solid #bfccd8;
+      border-radius: 6px;
+      padding: 0 10px;
+      font: inherit;
+      color: #172033;
+      background: #fff;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #fbfcfd;
+    }
+
+    .notice {
+      margin-top: 12px;
+      min-height: 22px;
+      color: #146b45;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .notice.error {
+      color: #b42318;
+    }
+
+    @media (max-width: 860px) {
+      .record-header {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field:nth-child(odd) {
+        border-right: 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions,
+      .actions .button,
+      .actions button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <a class="crumb" href="<%= returnTo %>">Back to dashboard</a>
+        <h1><%= selectedSchemaInfo.displayName %></h1>
+        <p class="subtitle">Read-only record detail with complete schema properties.</p>
+      </div>
+      <div class="badge-group">
+        <div class="badge">Read only</div>
+        <div class="badge"><%= selectedSchemaInfo.collectionName %></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="record-header">
+      <div class="record-title">
+        <h2><%= reportsService.formatValue(record.fullName || record.email || record.firstName || record.startupName || record.businessName || record.companyName || record._id) %></h2>
+        <p><%= selectedSchemaInfo.description %></p>
+      </div>
+      <div class="actions">
+        <a class="button button-muted" href="<%= returnTo %>">Dashboard</a>
+        <a class="button button-muted" href="/report/<%= selectedSchema %>/<%= record._id %>.csv">Download CSV</a>
+        <button type="button" onclick="openEmailModal()">Share by Email</button>
+      </div>
+    </section>
+
+    <section class="meta-grid" aria-label="Record summary">
+      <div class="meta-card">
+        <span>Record ID</span>
+        <strong><%= record._id %></strong>
+      </div>
+      <div class="meta-card">
+        <span>Email</span>
+        <strong><%= reportsService.formatValue(record.email) || "-" %></strong>
+      </div>
+      <div class="meta-card">
+        <span>Status</span>
+        <strong><%= reportsService.formatValue(record.status || record.track || "Read only") %></strong>
+      </div>
+      <div class="meta-card">
+        <span>Created</span>
+        <strong><%= reportsService.formatValue(record.createdAt) || "-" %></strong>
+      </div>
+    </section>
+
+    <section class="details-panel">
+      <div class="details-head">
+        <h2>Complete Record Details</h2>
+        <p>Every schema property is shown in full. Long text fields are expanded for review.</p>
+      </div>
+      <div class="field-grid">
+        <% details.forEach((detail) => { %>
+          <article class="field <%= detail.isLongText ? "long" : "" %>">
+            <h3 class="field-label"><%= detail.label %></h3>
+            <p class="field-value <%= detail.isEmpty ? "empty" : "" %>"><%= detail.isEmpty ? "Not provided" : detail.value %></p>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="emailModal" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+    <form class="modal" id="emailForm">
+      <div class="modal-head">
+        <h3 id="emailModalTitle">Share Record By Email</h3>
+      </div>
+      <div class="modal-body">
+        <p>Enter the destination email address for this full report record.</p>
+        <input type="hidden" id="schemaName" name="schemaName" value="<%= selectedSchema %>">
+        <input type="hidden" id="recordId" name="recordId" value="<%= record._id %>">
+        <label>
+          Destination email
+          <input type="email" id="destinationEmail" name="destinationEmail" required placeholder="name@example.com">
+        </label>
+        <div class="notice" id="emailNotice"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="button-muted" type="button" onclick="closeEmailModal()">Cancel</button>
+        <button type="submit" id="sendButton">Send</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const modal = document.getElementById("emailModal");
+    const emailForm = document.getElementById("emailForm");
+    const emailNotice = document.getElementById("emailNotice");
+    const sendButton = document.getElementById("sendButton");
+
+    function openEmailModal() {
+      document.getElementById("destinationEmail").value = "";
+      emailNotice.textContent = "";
+      emailNotice.classList.remove("error");
+      modal.classList.add("open");
+      setTimeout(() => document.getElementById("destinationEmail").focus(), 50);
+    }
+
+    function closeEmailModal() {
+      modal.classList.remove("open");
+    }
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeEmailModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeEmailModal();
+    });
+
+    emailForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      emailNotice.textContent = "Sending...";
+      emailNotice.classList.remove("error");
+      sendButton.disabled = true;
+
+      try {
+        const payload = Object.fromEntries(new FormData(emailForm).entries());
+        const response = await fetch("/report/share-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || "Failed to send report.");
+        }
+
+        emailNotice.textContent = result.message || "Report sent successfully.";
+        setTimeout(closeEmailModal, 900);
+      } catch (error) {
+        emailNotice.textContent = error.message;
+        emailNotice.classList.add("error");
+      } finally {
+        sendButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
