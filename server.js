@@ -245,7 +245,7 @@ app.post("/contact", async (req, res) => {
           </div>
         </div>
         <div class="footer">
-          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+          <p>&copy; 2026 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -314,15 +314,15 @@ app.post("/contact", async (req, res) => {
           <p>Dear <strong>${fullName}</strong>,</p>
           <p>Thank you for reaching out to the Edo Youth Impact Forum (EYIF). We have received your message and our team is currently reviewing it.</p>
           <p>We'll get back to you as soon as possible. If your inquiry is urgent, please don't hesitate to call us directly.</p>
-          <p>We look forward to connecting with you at EYIF 2025!</p>
+          <p>We look forward to connecting with you at EYIF 2026!</p>
           <p>Best regards,</p>
-          <p><strong>The EYIF 2025 Team</strong></p>
+          <p><strong>The EYIF 2026 Team</strong></p>
           <div style="text-align: center; margin-top: 20px;">
             <a href="${process.env.WEBSITE_URL}" class="btn">Visit Our Website</a>
           </div>
         </div>
         <div class="footer">
-          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+          <p>&copy; 2026 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
           <p>
             <a href="${process.env.WEBSITE_URL}" style="color: #4E31AA; text-decoration: none;">Visit our website</a> | 
             <a href="${process.env.WEBSITE_URL}/contact.html" style="color: #4E31AA; text-decoration: none;">Contact us</a>
@@ -337,7 +337,7 @@ app.post("/contact", async (req, res) => {
     // Send confirmation email to the sender
     const info = await sendMail({
       to: email,
-      subject: "Thank You for Contacting EYIF 2025",
+      subject: "Thank You for Contacting EYIF 2026",
       html: thanksMessage,
     });
 
@@ -432,16 +432,16 @@ app.post("/subscribe", async (req, res) => {
         <div class="content">
           <p>Hello,</p>
           <p>Thank you for subscribing to updates from the Edo Youth Impact Forum (EYIF)!</p>
-          <p>You'll now receive the latest news, event updates, and opportunities related to EYIF 2025.</p>
+          <p>You'll now receive the latest news, event updates, and opportunities related to EYIF 2026.</p>
           <p>We're excited to have you join our community of forward-thinking youth committed to transforming the future.</p>
           <p>Best regards,</p>
-          <p><strong>The EYIF 2025 Team</strong></p>
+          <p><strong>The EYIF 2026 Team</strong></p>
           <div style="text-align: center; margin-top: 20px;">
             <a href="${process.env.WEBSITE_URL}" class="btn">Visit Our Website</a>
           </div>
         </div>
         <div class="footer">
-          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+          <p>&copy; 2026 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
           <p>
             <a href="${process.env.WEBSITE_URL}" style="color: #4E31AA; text-decoration: none;">Visit our website</a> | 
             <a href="${process.env.WEBSITE_URL}/contact.html" style="color: #4E31AA; text-decoration: none;">Contact us</a>
@@ -496,12 +496,12 @@ app.post("/subscribe", async (req, res) => {
           <h1>New Newsletter Subscription</h1>
         </div>
         <div class="content">
-          <p>You have a new newsletter subscriber for EYIF 2025!</p>
+          <p>You have a new newsletter subscriber for EYIF 2026!</p>
           <p><strong>Email:</strong> ${email}</p>
           <p>Date: ${new Date().toLocaleString()}</p>
         </div>
         <div class="footer">
-          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+          <p>&copy; 2026 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -512,7 +512,7 @@ app.post("/subscribe", async (req, res) => {
     // Send confirmation email to subscriber
     const info = await sendMail({
       to: email,
-      subject: "Thank You for Subscribing to EYIF 2025 Updates",
+      subject: "Thank You for Subscribing to EYIF 2026 Updates",
       html: subscribeEmailTemplate,
     });
 
@@ -702,7 +702,7 @@ app.post("/grant-registration", async (req, res) => {
           </div>
         </div>
         <div class="footer">
-          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+          <p>&copy; 2026 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -783,7 +783,7 @@ app.post("/grant-registration", async (req, res) => {
         </div>
         <div class="content">
           <p>Dear <strong>${fullName}</strong>,</p>
-          <p>Thank you for submitting your application for the EYIF 2025 Grant. We have received your submission and it's now being reviewed by our team.</p>
+          <p>Thank you for submitting your application for the EYIF 2026 Grant. We have received your submission and it's now being reviewed by our team.</p>
           
           <div class="app-details">
             <h3>Application Details:</h3>
@@ -796,13 +796,13 @@ app.post("/grant-registration", async (req, res) => {
           <ol>
             <li>Our team will review all applications.</li>
             <li>Shortlisted candidates will be contacted for the next round.</li>
-            <li>Winners will be announced during the EYIF 2025 event on July 2nd at Victor Uwaifo Creative Hub, Benin.</li>
+            <li>Winners will be announced during the EYIF 2026 event on July 2nd at Victor Uwaifo Creative Hub, Benin.</li>
           </ol>
           
           <p>If you have any questions about your application, please don't hesitate to contact us.</p>
           
           <p>Best of luck with your application!</p>
-          <p><strong>The EYIF 2025 Team</strong></p>
+          <p><strong>The EYIF 2026 Team</strong></p>
           
           <div style="text-align: center; margin-top: 20px;">
             <a href="${
@@ -811,7 +811,7 @@ app.post("/grant-registration", async (req, res) => {
           </div>
         </div>
         <div class="footer">
-          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+          <p>&copy; 2026 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
           <p>
             <a href="${
               process.env.WEBSITE_URL
@@ -830,7 +830,7 @@ app.post("/grant-registration", async (req, res) => {
     // Send confirmation email to applicant
     const info = await sendMail({
       to: email,
-      subject: "Your EYIF 2025 Grant Application Has Been Received",
+      subject: "Your EYIF 2026 Grant Application Has Been Received",
       html: applicantConfirmationTemplate,
     });
 
@@ -917,7 +917,7 @@ app.post("/reserve-seat", async (req, res) => {
         </div>
         <div class=\"content\">
           <p>Dear <strong>${fullName}</strong>,</p>
-          <p>Your seat for the Edo Youth Impact Forum (EYIF) 2025 event has been successfully reserved.</p>
+          <p>Your seat for the Edo Youth Impact Forum (EYIF) 2026 event has been successfully reserved.</p>
           <p>We look forward to seeing you at the event!</p>
           <p><strong>Reservation Details:</strong></p>
           <ul>
@@ -930,7 +930,7 @@ app.post("/reserve-seat", async (req, res) => {
           </div>
         </div>
         <div class=\"footer\">
-          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+          <p>&copy; 2026 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -967,7 +967,7 @@ app.post("/reserve-seat", async (req, res) => {
           <div class=\"info-item\"><span class=\"info-label\">Reservation Date:</span> ${new Date().toLocaleString()}</div>
         </div>
         <div class=\"footer\">
-          <p>&copy; 2025 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
+          <p>&copy; 2026 Edo Youth Impact Forum (EYIF). All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -978,7 +978,7 @@ app.post("/reserve-seat", async (req, res) => {
     // Send confirmation email to the user
     const info = await sendMail({
       to: email,
-      subject: "Your Seat Reservation for EYIF 2025 is Confirmed",
+      subject: "Your Seat Reservation for EYIF 2026 is Confirmed",
       html: seatRecipientTemplate,
     });
 
@@ -1459,7 +1459,7 @@ app.get("/reports/api/duplicates/:schemaName", async (req, res) => {
 
 // Root Route
 app.get("/", (req, res) => {
-  res.send("EYIF 2025 API is running");
+  res.send("EYIF 2026 API is running");
 });
 
 // Error Handling Middleware
