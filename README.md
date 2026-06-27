@@ -1,6 +1,6 @@
-# EYIF 2025 Server
+# EYIF 2026 Server
 
-Backend server for the Edo Youth Impact Forum (EYIF) 2025 website. This server handles form submissions including contact forms, newsletter subscriptions, and grant applications.
+Backend server for the Edo Youth Impact Forum (EYIF) 2026 website. This server handles form submissions including contact forms, newsletter subscriptions, and grant applications.
 
 ## Features
 
@@ -106,7 +106,7 @@ yarn start
     "lastName": "Doe",
     "email": "johndoe@example.com",
     "phone": "+2341234567890",
-    "message": "Hello, I would like more information about EYIF 2025."
+    "message": "Hello, I would like more information about EYIF 2026."
   }
   ```
 
